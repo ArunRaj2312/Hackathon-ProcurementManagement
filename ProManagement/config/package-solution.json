@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "procurement-management-client-side-solution",
+    "id": "b3075565-15ca-49dc-a967-4359f59e6540",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "ProcurementManagement description"
+      },
+      "longDescription": {
+        "default": "ProcurementManagement description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "procurement-management Feature",
+        "description": "The feature that activates elements of the procurement-management solution.",
+        "id": "3e23735a-bc94-4c07-a197-efcb9751fbf6",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/procurement-management.sppkg"
+  }
+}

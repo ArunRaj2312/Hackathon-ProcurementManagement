@@ -1,0 +1,98 @@
+.layoutCon {
+  background-color: var(--themeColorLite);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .basicInfoMainCon {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: whitesmoke;
+    .subtitle {
+      margin: 0;
+      text-transform: uppercase;
+      color: #a2a8c1;
+      text-decoration: underline;
+      font-size: var(--fontSizeMedium);
+    }
+    .subTitleCon {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 20px;
+      .itemCon {
+        .itemLabelCon {
+          margin: 0;
+          color: var(--lightGrey);
+          font-weight: 500;
+          font-size: var(--fontSizeMedium);
+        }
+        .itemValueCon {
+          margin: 0;
+          font-size: var(--fontSizeMedium);
+        }
+      }
+      .fileMainCon {
+        display: flex;
+        gap: 20px;
+        .fileCon {
+          background-color: #d8f6e2;
+          padding: 5px 10px;
+          border-radius: 10px;
+          width: fit-content;
+          .fileLabel {
+            margin: 0;
+            font-size: var(--fontSizeMedium);
+            .fileIcon {
+              font-size: var(--fontSizeMedium);
+              margin-right: 10px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  //ai overview styles...
+  .aiOverviewMainCon {
+    background: linear-gradient(
+      to right,
+      var(--themeColorDark) 50%,
+      var(--royalBlue) 50%
+    );
+    border-radius: 12px;
+    padding: 1px;
+
+    .aiOverviewLabelCon {
+      background-image: linear-gradient(
+        to right,
+        var(--themeColorDark),
+        var(--royalBlue)
+      );
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+
+      .labelStyle {
+        margin: 0;
+        color: var(--whiteColor);
+      }
+      .aiIconStyle {
+        color: var(--whiteColor);
+        margin-right: 10px;
+      }
+    }
+    .aiContentCon {
+      background-color: var(--whiteColor);
+      color: var(--blackColor);
+      padding: 10px;
+      border-radius: 0px 0px 10px 10px;
+      p {
+        margin: 0;
+      }
+    }
+  }
+}

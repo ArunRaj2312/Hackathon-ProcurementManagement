@@ -1,0 +1,190 @@
+.vendorLayoutCon {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #def8d7;
+  .title {
+    margin: 0;
+    margin-top: 10px;
+    color: var(--themeColorDark);
+    font-weight: 500;
+    font-size: var(--fontSizeMedium);
+  }
+  .subtitle {
+    margin: 0;
+    color: var(--darkGrey);
+    font-size: var(--fontSizeMedium);
+  }
+  .cardLayoutCon {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-items: start;
+    .cardMainCon {
+      border: 1px solid var(--themeColorDark);
+      padding: 10px;
+      background-color: #eefcea;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .vendorNameMainCon {
+        display: flex;
+        justify-content: space-between;
+        .vendorNameCon {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 10px;
+          .vendorNameStyle {
+            margin: 0;
+            font-size: var(--fontSizeMedium);
+            color: var(--themeColorDark);
+          }
+          .unitDaysMainCon {
+            display: flex;
+            gap: 10px;
+            .unitMainCon {
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              .iconStyle {
+                font-size: var(--fontSizeLarge);
+                color: var(--themeColorDark);
+              }
+              .unitStyle {
+                margin: 0;
+                font-size: var(--fontSizeMedium);
+              }
+            }
+          }
+          .daysMainCon {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            .iconStyle {
+              font-size: var(--fontSizeLarge);
+              color: var(--themeColorDark);
+            }
+            .daysStyle {
+              margin: 0;
+              font-size: var(--fontSizeMedium);
+            }
+          }
+        }
+        .unitDaysFScoreMainCon {
+          display: flex;
+          justify-content: space-between;
+          .finalScoreMainCon {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            .finalScoreLabel {
+              margin: 0;
+              font-size: var(--fontSizeMedium);
+              color: var(--darkGrey);
+            }
+            .finalScoreValue {
+              margin: 0;
+              font-size: var(--fontSizeMedium);
+            }
+          }
+        }
+      }
+      //on-time delivery styles...
+      .labelValueMainCon {
+        display: flex;
+        gap: 20px;
+        .labelValueCon {
+          background-color: #f3fdf1;
+          padding: 8px;
+          width: 300px;
+          .labelStyle {
+            font-size: var(--fontSizeMedium);
+            margin: 0;
+          }
+          .valueStyle {
+            font-size: var(--fontSizeMedium);
+            margin: 0;
+            font-weight: 500;
+          }
+        }
+      }
+      //view score breakdown
+      .viewScoreMainCon {
+        background-color: #f3fdf1;
+        padding: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .viewScoreLabel {
+          margin: 0;
+          font-size: var(--fontSizeMedium);
+        }
+        .viewScoreIcon {
+          font-size: var(--fontSizeMedium);
+        }
+      }
+      .viewScoreContentMainCon {
+        background-color: #f3fdf1;
+        padding: 8px;
+        .viewScoreItem {
+          display: flex;
+          justify-content: space-between;
+          .viewScoreContentValue {
+            margin: 0;
+            font-size: var(--fontSizeMedium);
+          }
+          .viewScoreContentLabel {
+            margin: 0;
+            font-size: var(--fontSizeMedium);
+          }
+        }
+      }
+    }
+  }
+
+  //ai overview styles...
+  .aiOverviewMainCon {
+    background: linear-gradient(
+      to right,
+      var(--themeColorDark) 50%,
+      var(--royalBlue) 50%
+    );
+    border-radius: 12px;
+    padding: 1px;
+
+    .aiOverviewLabelCon {
+      background-image: linear-gradient(
+        to right,
+        var(--themeColorDark),
+        var(--royalBlue)
+      );
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+
+      .labelStyle {
+        margin: 0;
+        color: var(--whiteColor);
+      }
+      .aiIconStyle {
+        color: var(--whiteColor);
+        margin-right: 10px;
+      }
+    }
+    .aiContentCon {
+      background-color: var(--whiteColor);
+      color: var(--blackColor);
+      padding: 10px;
+      border-radius: 0px 0px 10px 10px;
+      p {
+        margin: 0;
+      }
+    }
+  }
+}

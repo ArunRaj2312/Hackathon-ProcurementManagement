@@ -1,0 +1,46 @@
+/*Common styles for all pages*/
+#workbenchPageContent {
+  max-width: 100%;
+  border: 0 !important;
+  margin: 0;
+}
+
+.content_3f3fd3c2,
+.CanvasZone {
+  padding: 0 !important;
+  max-width: 100% !important;
+}
+
+#spCommandBar {
+  display: none !important;
+}
+
+[data-automation-id="CanvasZone-SectionContainer"] {
+  padding: 0px !important;
+}
+
+[data-automation-id="contentScrollRegion"] {
+  overflow-y: hidden !important;
+}
+
+[data-automationid="SiteHeader"] {
+  display: none !important;
+}
+
+[data-automationid="SimpleFooter"] {
+  display: none !important;
+}
+
+.spAppAndPropertyPanelContainer {
+  padding-bottom: 0px !important;
+}
+
+/* Full width */
+.spAppAndPropertyPanelContainer .sp-appBar {
+  display: none !important;
+}
+
+.ControlZone {
+  margin: 0px !important;
+  padding: 0px !important;
+}
