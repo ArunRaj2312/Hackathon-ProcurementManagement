@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useState } from "react";
 import vendorStyles from "../VendorComparison/VendorComparison.module.scss";
-const VendorComparison = () => {
-  const tempVendor = [
+const VendorComparison = (props: { data?: any }) => {
+  const tempVendor = props.data?.vendors || [
     {
       id: 1,
       unit: "110",
@@ -50,6 +50,13 @@ const VendorComparison = () => {
   const handleToggle = (id: number) => {
     setOpenVendor((prev) => (prev === id ? null : id));
   };
+
+  // useEffect(() => {
+  //   if (props.onDataChange) {
+  //     props.onDataChange({ vendors: tempVendor });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
   return (
     <>
       <div className={vendorStyles.vendorLayoutCon}>
@@ -60,7 +67,7 @@ const VendorComparison = () => {
           </p>
         </div>
         <div className={vendorStyles.cardLayoutCon}>
-          {tempVendor?.map((item, index) => (
+          {tempVendor?.map((item: any, index: number) => (
             <div className={vendorStyles.cardMainCon} key={item?.id}>
               <div className={vendorStyles.vendorNameMainCon}>
                 <div className={vendorStyles.vendorNameCon}>

@@ -1,23 +1,7 @@
 import * as React from "react";
 import basicInfoStyles from "../BasicInformation/BasicInformation.module.scss";
-const BasicInformation = () => {
-  const tempBasicDetails = {
-    prId: "PR-001",
-    item: "Laptop - Dell Latitude 5440",
-    quantity: "20 Units",
-    estimatedUnitPrice: "68,000",
-    totalEstimated: "13,60,000",
-    requiredDate: "25/03/2026",
-    justification: "New Employee onboarding requirement",
-  };
-  const requesterDetails = {
-    requestedBy: "Swetha",
-    employeeId: "E-0052",
-    designation: "Admin",
-    location: "O365",
-    requiredDate: "27/02/2026",
-  };
-  console.log(requesterDetails);
+const BasicInformation = (props: { data?: any }) => {
+  const data = props.data || {};
   return (
     <>
       <div className={basicInfoStyles.layoutCon}>
@@ -27,46 +11,40 @@ const BasicInformation = () => {
           <div className={basicInfoStyles.subTitleCon}>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>PR ID</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.prId}
-              </p>
+              <p className={basicInfoStyles.itemValueCon}>{data?.prId}</p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Item</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.item}
-              </p>
+              <p className={basicInfoStyles.itemValueCon}>{data?.item}</p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Quantity</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.quantity}
-              </p>
+              <p className={basicInfoStyles.itemValueCon}>{data?.quantity}</p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>
                 Estimated Unit Price
               </p>
               <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.estimatedUnitPrice}
+                {data?.estimatedUnitPrice}
               </p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Total Estimated</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.totalEstimated}
+                {data?.totalEstimated}
               </p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Required Date</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.requiredDate}
+                {data?.requiredDate}
               </p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Justification</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.justification}
+                {data?.justification}
               </p>
             </div>
           </div>
@@ -94,31 +72,27 @@ const BasicInformation = () => {
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Requested by</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.prId}
+                {data?.requestedBy}
               </p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Employee id</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.item}
-              </p>
+              <p className={basicInfoStyles.itemValueCon}>{data?.employeeId}</p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Designation</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.quantity}
+                {data?.designation}
               </p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Location</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.estimatedUnitPrice}
-              </p>
+              <p className={basicInfoStyles.itemValueCon}>{data?.location}</p>
             </div>
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Required Date</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {tempBasicDetails?.totalEstimated}
+                {data?.requesterRequiredDate}
               </p>
             </div>
           </div>
