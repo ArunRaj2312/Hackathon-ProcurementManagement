@@ -6,55 +6,61 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
   return (
     <div className={styles.wrapper}>
       {/* Header */}
-      <div className={styles.header}>
-        <h2>Invoice Validation</h2>
+      <div>
+        <p className={styles.title}>Invoice Validation</p>
       </div>
-
       <div className={styles.mainGrid}>
         {/* Left Section */}
-        <div className={styles.invoiceCard}>
-          {/* Invoice Header */}
-          <div className={styles.invoiceTop}>
-            <div>
+
+        <div className={styles.poCard}>
+          <div className={styles.poTop}>
+            <div className={styles.poContentCon}>
               <span className={styles.label}>Invoice Number</span>
-              <div className={styles.invoiceNo}>
+              <strong className={styles.value}>
                 {data?.invoiceNumber || "INV-V-2026-142"}
-              </div>
+              </strong>
             </div>
-            <div className={styles.dateBlock}>
+            <div className={styles.poContentCon}>
               <span className={styles.label}>Invoice date</span>
-              <strong>{data?.invoiceDate || "06/03/2026"}</strong>
+              <strong className={styles.value}>
+                {data?.invoiceDate || "06/03/2026"}
+              </strong>
             </div>
           </div>
 
           {/* Invoice Details */}
-          <div className={styles.detailsBox}>
-            <div className={styles.detailsTitle}>INVOICE DETAILS</div>
-
-            <div className={styles.detailsGrid}>
-              <div>
-                <span className={styles.label}>Vendor</span>
-                <p>{data?.vendor || "Vendor 1"}</p>
+          <div className={styles.vendorDetails}>
+            <p className={styles.subtitle}>Invoice Details</p>
+            <div className={styles.subTitleCon}>
+              <div className={styles.itemCon}>
+                <p className={styles.itemLabelCon}>Vendor</p>
+                <p className={styles.itemValueCon}>
+                  {data?.vendor || "Vendor-1"}
+                </p>
               </div>
-
-              <div>
-                <span className={styles.label}>Vendor code</span>
-                <p>{data?.vendorCode || "VEN-2025-0142"}</p>
+              <div className={styles.itemCon}>
+                <p className={styles.itemLabelCon}>Vendor code</p>
+                <p className={styles.itemValueCon}>
+                  {data?.vendorCode || "VEN-2025-0142"}
+                </p>
               </div>
-
-              <div>
-                <span className={styles.label}>GST number</span>
-                <p>{data?.gstNumber || "06AABC1234F1Z5"}</p>
+              <div className={styles.itemCon}>
+                <p className={styles.itemLabelCon}>GST number</p>
+                <p className={styles.itemValueCon}>
+                  {data?.gstNumber || "06AABC1234F1Z5"}
+                </p>
               </div>
-
-              <div>
-                <span className={styles.label}>Amount</span>
-                <p>{data?.amount || "₹1,29,800"}</p>
+              <div className={styles.itemCon}>
+                <p className={styles.itemLabelCon}>Amount</p>
+                <p className={styles.itemValueCon}>
+                  {data?.amount || "₹1,29,800"}
+                </p>
               </div>
-
-              <div>
-                <span className={styles.label}>Due date</span>
-                <p>{data?.dueDate || "05/04/2026"}</p>
+              <div className={styles.itemCon}>
+                <p className={styles.itemLabelCon}>Due date</p>
+                <p className={styles.itemValueCon}>
+                  {data?.dueDate || "05/04/2026"}
+                </p>
               </div>
             </div>
           </div>

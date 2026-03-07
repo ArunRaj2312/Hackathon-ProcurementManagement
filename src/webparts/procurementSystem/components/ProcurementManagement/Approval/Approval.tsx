@@ -6,65 +6,134 @@ const Approval: React.FC<{ data?: any }> = (props) => {
   return (
     <div className={styles.container}>
       {/* Top Section */}
+      <div>
+        <p className={styles.topTitle}>Selected Vendor</p>
+      </div>
       <div className={styles.topGrid}>
         {/* Selected Vendor */}
-        <div className={`${styles.card} ${styles.vendorCard}`}>
-          <h3 className={styles.title}>Selected Vendor</h3>
-
-          <div className={styles.vendorHeader}>
-            <div className={styles.vendorInfo}>
-              <strong>{data?.selectedVendor?.name || "Vendor 1"}</strong>
-              <div className={styles.meta}>
-                ₹{data?.selectedVendor?.price || "110"}/unit •{" "}
-                {data?.selectedVendor?.days || "12"} days
+        {/* <div className={styles.cardLayoutCon}> */}
+        <div className={styles.cardMainCon}>
+          <div className={styles.vendorNameMainCon}>
+            <div className={styles.vendorNameCon}>
+              <p className={styles.vendorNameStyle}>
+                {data?.selectedVendor?.name || "Vendor 1"}
+              </p>
+              <div className={styles.unitDaysMainCon}>
+                <div className={styles.unitMainCon}>
+                  <i className={`${styles.iconStyle} pi pi-dollar`}></i>
+                  <p className={styles.unitStyle}>
+                    ₹{data?.selectedVendor?.price || "110"}/unit •{" "}
+                  </p>
+                </div>
+                <div className={styles.daysMainCon}>
+                  <i className={`${styles.iconStyle} pi pi-clock`}></i>
+                  <p className={styles.daysStyle}>
+                    {data?.selectedVendor?.days || "12"} days
+                  </p>
+                </div>
               </div>
             </div>
-            <div className={styles.finalScore}>
-              <span>Final Score</span>
-              <strong>{data?.selectedVendor?.finalScore || "90"}</strong>
+            <div className={styles.unitDaysFScoreMainCon}>
+              <div className={styles.finalScoreMainCon}>
+                <p className={styles.finalScoreLabel}>Final Score</p>
+                <p className={styles.finalScoreValue}>
+                  {data?.selectedVendor?.finalScore || "90"}
+                </p>
+              </div>
             </div>
           </div>
-
-          <div className={styles.stats}>
-            <div className={styles.statBox}>
-              <span>On-Time delivery</span>
-              <strong>92%</strong>
+          {/* on time delivery */}
+          <div className={styles.labelValueMainCon}>
+            <div className={styles.labelValueCon}>
+              <p className={styles.labelStyle}>On-Time delivery</p>
+              <p className={styles.valueStyle}>90 %</p>
             </div>
-            <div className={styles.statBox}>
-              <span>Quality Score</span>
-              <strong>88/100</strong>
+            <div className={styles.labelValueCon}>
+              <p className={styles.labelStyle}>Quality Score</p>
+              <p className={styles.valueStyle}>88 /100</p>
             </div>
           </div>
-
-          <button className={styles.linkBtn}>View score breakdown</button>
+          {/* view score breakdown */}
+          <div
+            className={styles.viewScoreMainCon}
+            //onClick={() => handleToggle(item?.id)}
+            style={{ cursor: "pointer" }}
+          >
+            <p className={styles.viewScoreLabel}>View score breakdown</p>
+            {/* <i
+                className={`${styles.viewScoreIcon} pi ${
+                  openVendor === item?.id ? "pi-angle-up" : "pi-angle-down"
+                }`}
+              ></i> */}
+          </div>
+          {/* view score breakdown content */}
+          {/* {openVendor === item?.id && (
+              <div className={styles.viewScoreContentMainCon}>
+                <div className={styles.viewScoreItem}>
+                  <p className={styles.viewScoreContentLabel}>
+                    Price Competitiveness
+                  </p>
+                  <p className={styles.viewScoreContentValue}>
+                    {item?.viewScoreBreakdown?.priceCompetitiveness}/100
+                  </p>
+                </div>
+                <div className={styles.viewScoreItem}>
+                  <p className={styles.viewScoreContentLabel}>
+                    Delivery timeline
+                  </p>
+                  <p className={styles.viewScoreContentValue}>
+                    {item?.viewScoreBreakdown?.deliveryTimeline}/100
+                  </p>
+                </div>
+                <div className={styles.viewScoreItem}>
+                  <p className={styles.viewScoreContentLabel}>
+                    Historical performance
+                  </p>
+                  <p className={styles.viewScoreContentValue}>
+                    {item?.viewScoreBreakdown?.HistoricalPerformance}/100
+                  </p>
+                </div>
+                <div className={styles.viewScoreItem}>
+                  <p className={styles.viewScoreContentLabel}>
+                    Quality Certification
+                  </p>
+                  <p className={styles.viewScoreContentValue}>
+                    {item?.viewScoreBreakdown?.qualityCertification}/100
+                  </p>
+                </div>
+              </div>
+            )} */}
         </div>
+        {/* </div> */}
 
         {/* Purchase Summary */}
-        <div className={styles.card}>
-          <h3 className={styles.title}>Purchase Request Summary</h3>
-
-          <div className={styles.summaryRow}>
-            <span>PR ID</span>
-            <strong>{data?.purchaseSummary?.prId || "PR-001"}</strong>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span>Item</span>
-            <strong>
-              {data?.purchaseSummary?.item || "Laptop – Dell Latitude 5440"}
-            </strong>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span>Quantity</span>
-            <strong>{data?.purchaseSummary?.quantity || "20 Units"}</strong>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span>Total amount</span>
-            <strong>
-              {data?.purchaseSummary?.totalAmount || "₹13,60,000"}
-            </strong>
+        <div className={styles.basicInfoMainCon}>
+          <p className={styles.subtitle}>Purchase Request Summary</p>
+          <div className={styles.subTitleCon}>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>PR ID</p>
+              <p className={styles.itemValueCon}>
+                {data?.purchaseSummary?.prId}
+              </p>
+            </div>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Item</p>
+              <p className={styles.itemValueCon}>
+                {data?.purchaseSummary?.item || "Laptop – Dell Latitude 5440"}
+              </p>
+            </div>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Quantity</p>
+              <p className={styles.itemValueCon}>
+                {data?.purchaseSummary?.quantity || "20 Units"}
+              </p>
+            </div>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Total amount</p>
+              <p className={styles.itemValueCon}>
+                {data?.purchaseSummary?.totalAmount || "₹13,60,000"}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -75,7 +144,7 @@ const Approval: React.FC<{ data?: any }> = (props) => {
           <div className={styles.approver}>
             <div className={styles.avatar}>👤</div>
             <div>
-              <strong>Head of Procurement</strong>
+              <strong className={styles.mainText}>Head of Procurement</strong>
               <div className={styles.subText}>Mohan</div>
             </div>
           </div>
