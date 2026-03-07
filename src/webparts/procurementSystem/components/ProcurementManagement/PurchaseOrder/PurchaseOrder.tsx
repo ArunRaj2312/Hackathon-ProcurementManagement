@@ -6,66 +6,75 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
   return (
     <div className={styles.wrapper}>
       {/* Header */}
-      <div className={styles.header}>
-        <h2>Purchase order</h2>
-        <span className={styles.subHeader}>
+      <div>
+        <p className={styles.title}>Purchase order</p>
+        <p className={styles.subtitle}>
           {data?.poNumber || "PO-2026-001"} - Generated From{" "}
           {data?.prId || "PR-001"}
-        </span>
+        </p>
       </div>
 
       {/* PO Card */}
       <div className={styles.poCard}>
         <div className={styles.poTop}>
-          <div>
+          <div className={styles.poContentCon}>
             <span className={styles.label}>Purchase Order Number</span>
-            <div className={styles.poNumber}>
+            <strong className={styles.value}>
               {data?.poNumber || "PO-2026-001"}
-            </div>
+            </strong>
           </div>
-          <div className={styles.issueDate}>
+          <div className={styles.poContentCon}>
             <span className={styles.label}>Issue date</span>
-            <strong>{data?.issueDate || "22/02/2026"}</strong>
+            <strong className={styles.value}>
+              {data?.issueDate || "22/02/2026"}
+            </strong>
           </div>
         </div>
 
         {/* Vendor Details */}
-        <div className={styles.vendorBox}>
-          <div className={styles.vendorTitle}>VENDOR DETAILS</div>
-
-          <div className={styles.vendorGrid}>
-            <div>
-              <span className={styles.label}>Company name</span>
-              <p>{data?.vendor?.name || "Vendor 1"}</p>
+        <div className={styles.vendorDetails}>
+          <p className={styles.subtitle}>Vendor Details</p>
+          <div className={styles.subTitleCon}>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Company name</p>
+              <p className={styles.itemValueCon}>
+                {data?.vendor?.name || "Vendor 1"}
+              </p>
             </div>
-            <div>
-              <span className={styles.label}>Vendor code</span>
-              <p>{data?.vendor?.code || "VEN-2025-0142"}</p>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Vendor code</p>
+              <p className={styles.itemValueCon}>
+                {data?.vendor?.code || "VEN-2025-0142"}
+              </p>
             </div>
-            <div>
-              <span className={styles.label}>GST number</span>
-              <p>06AABC1234F1Z5</p>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>GST number</p>
+              <p className={styles.itemValueCon}>06AABC1234F1Z5</p>
             </div>
-            <div>
-              <span className={styles.label}>Contact person</span>
-              <p>Ramesh Kumar</p>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Contact person</p>
+              <p className={styles.itemValueCon}>Ramesh Kumar</p>
             </div>
-
-            <div>
-              <span className={styles.label}>Address</span>
-              <p>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Address</p>
+              <p className={styles.itemValueCon}>
+                {" "}
                 Plot 45, Industrial Area, Sector 18
                 <br />
                 Gurgaon, Haryana - 122015
               </p>
             </div>
-            <div>
-              <span className={styles.label}>Delivery date</span>
-              <p>{data?.deliveryDate || "06/03/2026"}</p>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Delivery date</p>
+              <p className={styles.itemValueCon}>
+                {data?.deliveryDate || "06/03/2026"}
+              </p>
             </div>
-            <div>
-              <span className={styles.label}>Payment terms</span>
-              <p>{data?.paymentTerms || "Net 30 days"}</p>
+            <div className={styles.itemCon}>
+              <p className={styles.itemLabelCon}>Payment terms</p>
+              <p className={styles.itemValueCon}>
+                {data?.paymentTerms || "Net 30 days"}
+              </p>
             </div>
           </div>
         </div>
@@ -89,30 +98,33 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
             <tbody>
               <tr>
                 <td>Laptop-Dell Latitude 5440</td>
-                <td>20 units</td>
-                <td>68,000</td>
-                <td>13,60,000</td>
+                <td style={{ textAlign: "center" }}>20 units</td>
+                <td style={{ textAlign: "center" }}>68,000</td>
+                <td style={{ textAlign: "center" }}>13,60,000</td>
               </tr>
             </tbody>
           </table>
 
           <div className={styles.calculation}>
-            <div>
-              <span>Sub total</span>
-              <span>13,60,000</span>
+            <div className={styles.subContentCon}>
+              <span className={styles.label}>Sub total</span>
+              <span className={styles.value}>13,60,000</span>
             </div>
-            <div>
-              <span>CGST (9%)</span>
-              <span>9,900</span>
+            <div className={styles.subContentCon}>
+              <span className={styles.label}>CGST (9%)</span>
+              <span className={styles.value}>9,900</span>
             </div>
-            <div>
-              <span>SGST (9%)</span>
-              <span>9,900</span>
+            <div className={styles.subContentCon}>
+              <span className={styles.label}>SGST (9%)</span>
+              <span className={styles.value}>9,900</span>
             </div>
 
-            <div className={styles.total}>
-              <span>Total Amount</span>
-              <span>13,78,800</span>
+            <div
+              // className={styles.total}
+              className={`${styles.total} ${styles.subContentCon}`}
+            >
+              <span className={styles.label}>Total Amount</span>
+              <span className={styles.value}>13,78,800</span>
             </div>
           </div>
         </div>

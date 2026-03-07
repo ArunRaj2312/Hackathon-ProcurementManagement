@@ -2,6 +2,13 @@
   background: linear-gradient(135deg, #eaffea, #f6fff6);
   padding: 24px;
   font-family: "Segoe UI", sans-serif;
+  .title {
+    margin: 0;
+    margin-top: 10px;
+    color: var(--themeColorDark);
+    font-weight: 500;
+    font-size: var(--fontSizeMedium);
+  }
 }
 
 .header h2 {
@@ -13,6 +20,62 @@
   display: grid;
   grid-template-columns: 3fr 1fr;
   gap: 20px;
+  //left content styles start here...
+  .poCard {
+    background: #ecfbe8;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    .poTop {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      .poContentCon {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        .label {
+          font-size: var(--fontSizeMedium);
+          color: #8a8a8a;
+        }
+        .value {
+          color: #0a9b2f;
+        }
+      }
+    }
+    //vendor details styles starts here...
+    .vendorDetails {
+      background-color: #f4fdf2;
+      padding: 10px;
+      border-radius: 5px;
+      .subtitle {
+        margin: 0;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        color: #a2a8c1;
+        text-decoration: underline;
+        font-size: var(--fontSizeMedium);
+      }
+      .subTitleCon {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 20px;
+        .itemCon {
+          .itemLabelCon {
+            margin: 0;
+            color: var(--lightGrey);
+            font-weight: 500;
+            font-size: var(--fontSizeMedium);
+          }
+          .itemValueCon {
+            margin: 0;
+            font-size: var(--fontSizeMedium);
+          }
+        }
+      }
+    }
+  }
 }
 
 .invoiceCard {
@@ -67,9 +130,11 @@
 }
 
 .actionCard {
-  background: #ffffffcc;
   border-radius: 16px;
   padding: 20px;
+  background-color: #edfce9;
+  margin-top: 15px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .primaryBtn {
@@ -85,9 +150,10 @@
 }
 
 .relatedBox h3 {
-  font-size: 14px;
+  font-size: var(--fontSizeMedium);
   color: #0aa83f;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  margin-top: 0px;
 }
 
 .docItem {
