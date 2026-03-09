@@ -2,11 +2,11 @@ import * as React from "react";
 import "../../../external/Style.css";
 import "../../../external/CommonStyle.module.scss";
 import MainComponent from "./MainComponent";
-
-const ProcurementSystem = () => {
+import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
+const ProcurementSystem: React.FC<any> = (props) => {
   return (
     <div>
-      <MainComponent />
+      <MainComponent context={props.context} />
     </div>
   );
 };
