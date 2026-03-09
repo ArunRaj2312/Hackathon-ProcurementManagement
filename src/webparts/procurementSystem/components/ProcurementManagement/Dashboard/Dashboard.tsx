@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Dashaboard.module.scss";
 import SPServices from "../../../../../CommonServices/SPServices";
 import { Calendar } from "primereact/calendar";
+import Loader from "../../Loader/Loader";
 
 const Dashboard: React.FC = () => {
   let newObj = {
@@ -26,27 +27,34 @@ const Dashboard: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [selectedRow, setSelectedRow] = useState<any>({ ...newObj });
   const [productOptions, setProductOptions] = useState<any[]>([]);
+  const [applicationLoader, setapplicationLoader] = useState<boolean>(true);
+  const [data, setData] = useState<any[]>([]);
 
-  const data = [
-    {
-      prId: "PR-001",
-      item: "Laptop – Dell Latitude 5440",
-      quantity: "20 Units",
-      price: "₹68,000",
-      total: "₹13,60,000",
-      date: "28/03/2026",
-      justification: "New employee onboarding requirement",
-    },
-    {
-      prId: "PR-002",
-      item: "Desktop Workstations (i7, 16GB RAM)",
-      quantity: "15 Units",
-      price: "₹52,000",
-      total: "₹7,80,000",
-      date: "02/04/2026",
-      justification: "New employee onboarding requirement",
-    },
-  ];
+  const getProcurementData = async () => {
+    await SPServices.SPReadItems({
+      Listname: "ProcurementDetails",
+      Select: "*,Requestor/Title,Item/Title,Item/PRId",
+      Expand: "Requestor,Item",
+    })
+      .then(async (res: any) => {
+        // Map the response to formData structure if needed
+        const mappedData = res.map((item: any) => ({
+          id: item.ID,
+          prId: item.Item.PRId || "",
+          item: item.Item ? item.Item.Title : "", // assuming Item is a lookup
+          quantity: item.Quantity,
+          price: item.Price,
+          total: item.Total,
+          date: item.Date,
+          justification: item.Justification,
+        }));
+        loadProducts(mappedData);
+      })
+      .catch((err) => {
+        console.error("Error fetching data from SP List:", err);
+      });
+  };
+
   const onChangeHandler = (key: string, value: string) => {
     let tempDialog = {
       ...selectedRow,
@@ -54,7 +62,7 @@ const Dashboard: React.FC = () => {
     tempDialog[key] = value;
     setSelectedRow({ ...tempDialog });
   };
-  const loadProducts = async () => {
+  const loadProducts = async (mappedData: any) => {
     try {
       // fetch ID and Title (and price if available)
       const items: any[] = await SPServices.SPReadItems({
@@ -67,13 +75,17 @@ const Dashboard: React.FC = () => {
         value: it.ID,
       }));
       setProductOptions(opts);
+      setData(mappedData);
     } catch (err) {
       console.error("Failed to load product options", err);
     }
   };
   // load product options from ProductDetails list
   useEffect(() => {
-    void loadProducts();
+    setTimeout(() => {
+      setapplicationLoader(false);
+      void getProcurementData();
+    }, 3000);
   }, []);
   const LIST_NAME = "ProcurementDetails"; // change to your actual SharePoint list name
 
@@ -83,12 +95,13 @@ const Dashboard: React.FC = () => {
       const payload: any = {
         // prId: selectedRow.prId,
         // For lookup column in SharePoint, include the lookup id field (FieldInternalName + 'Id')
-        ItemId: selectedRow.item?.value,
+        ItemId: selectedRow.item,
         Quantity: selectedRow.quantity,
         Price: selectedRow.price,
         Total: selectedRow.total,
         Date: selectedRow.date,
         Justification: selectedRow.justification,
+        ActiveTab: "1",
       };
 
       if (selectedRow && selectedRow.id) {
@@ -117,176 +130,205 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const actionTemplate = (rowData: any) => (
-    <Button
-      icon="pi pi-pencil"
-      onClick={() => {
-        // navigate to ProcurementManagement and pass the row data in router state
-        navigate("/procurementmanagement", { state: { selectedRow: rowData } });
-      }}
-    />
+    <div className="editIcon">
+      <i
+        className="pi pi-pencil"
+        onClick={() => {
+          navigate("/procurementmanagement", {
+            state: { selectedRow: rowData },
+          });
+        }}
+      />
+    </div>
   );
+  const mandatorySymbol = (): JSX.Element => {
+    return <span style={{ color: "red" }}>*</span>;
+  };
 
   return (
-    <div className={styles.procurementWrapper}>
-      {/* Header */}
-      <div className={styles.pageHeader}>
-        <h3>Procurement System</h3>
-        <Button
-          label="Add New"
-          icon="pi pi-plus"
-          className="p-button-success"
-          onClick={() => {
-            setSelectedRow(newObj);
-            setVisible(true);
-          }}
-        />
-      </div>
-
-      {/* DataTable */}
-      <DataTable
-        value={data}
-        paginator
-        rows={12}
-        stripedRows
-        responsiveLayout="scroll"
-      >
-        <Column field="prId" header="PR ID" />
-        <Column field="item" header="Item" />
-        <Column field="quantity" header="Quantity" />
-        <Column field="price" header="Estimated Unit Price" />
-        <Column field="total" header="Total Estimated" />
-        <Column field="date" header="Required Date" />
-        <Column body={actionTemplate} style={{ width: "4rem" }} />
-      </DataTable>
-
-      {/* Assign Resource Dialog */}
-      <Dialog
-        header="Assign resource"
-        visible={visible}
-        style={{ width: "40vw" }}
-        onHide={() => setVisible(false)}
-        footer={
-          <div className="flex justify-content-end gap-2">
+    <>
+      {applicationLoader ? (
+        <Loader />
+      ) : (
+        <div className={styles.procurementWrapper}>
+          {/* Header */}
+          <div className={styles.pageHeader}>
+            <h3>Procurement System</h3>
             <Button
-              label="Close"
-              className="p-button-secondary"
-              onClick={() => setVisible(false)}
-            />
-            <Button
-              label="Submit"
-              icon="pi pi-check"
+              label="Add New"
+              icon="pi pi-plus"
               className="p-button-success"
-              onClick={onSubmit}
+              onClick={() => {
+                setSelectedRow(newObj);
+                setVisible(true);
+              }}
             />
           </div>
-        }
-      >
-        {selectedRow && (
-          <div className="p-fluid grid">
-            <div className="col-6">
-              <label>PR ID</label>
-              <Dropdown
-                options={productOptions}
-                value={selectedRow.item}
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select item"
-                onChange={(e: any) => {
-                  //   const id = e.value;
-                  //   const selected = productOptions.find((o) => o.value === id);
-                  //   onChangeHandler("itemId", id);
-                  onChangeHandler("item", e.value);
-                  // optionally auto-fill price if product contains it
-                  //   if (selected && selected.price)
-                  //     onChangeHandler("price", selected.price.toString());
-                }}
-                filter
-                showClear
-                disabled
-              />
-            </div>
 
-            <div className="col-6">
-              <label>Item</label>
-              <Dropdown
-                options={productOptions}
-                value={selectedRow.item}
-                optionLabel="name"
-                optionValue="value"
-                placeholder="Select item"
-                onChange={(e: any) => {
-                  //   const id = e.value;
-                  //   const selected = productOptions.find((o) => o.value === id);
-                  //   onChangeHandler("itemId", id);
-                  onChangeHandler("item", e.value);
-                  // optionally auto-fill price if product contains it
-                  //   if (selected && selected.price)
-                  //     onChangeHandler("price", selected.price.toString());
-                }}
-                filter
-                showClear
-              />
-            </div>
+          {/* DataTable */}
+          <DataTable
+            value={data}
+            paginator
+            rows={12}
+            stripedRows
+            responsiveLayout="scroll"
+          >
+            <Column field="prId" header="PR ID" />
+            <Column field="item" header="Item" />
+            <Column field="quantity" header="Quantity" />
+            <Column field="price" header="Estimated Unit Price" />
+            <Column field="total" header="Total Estimated" />
+            <Column field="date" header="Required Date" />
+            <Column body={actionTemplate} style={{ width: "4rem" }} />
+          </DataTable>
 
-            <div className="col-6">
-              <label>Quantity</label>
-              <InputText
-                value={selectedRow.quantity}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  onChangeHandler("quantity", e.target.value)
-                }
-              />
-            </div>
+          {/* Assign Resource Dialog */}
+          <Dialog
+            header="Assign resource"
+            visible={visible}
+            style={{ width: "40vw" }}
+            onHide={() => setVisible(false)}
+            draggable={false}
+            showCloseIcon={false}
+            footer={
+              <div className="flex justify-content-end gap-2">
+                <Button
+                  label="Close"
+                  icon="pi pi-times"
+                  className="p-button-secondary"
+                  onClick={() => setVisible(false)}
+                />
+                <Button
+                  label="Submit"
+                  icon="pi pi-check"
+                  className="p-button-success"
+                  onClick={onSubmit}
+                />
+              </div>
+            }
+          >
+            {selectedRow && (
+              <div className={styles.fieldsFlex}>
+                <div className={styles.fields}>
+                  <label>PR ID {mandatorySymbol()}</label>
+                  <Dropdown
+                    options={productOptions}
+                    value={selectedRow.item}
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select item"
+                    style={{ width: "100%" }}
+                    onChange={(e: any) => {
+                      //   const id = e.value;
+                      //   const selected = productOptions.find((o) => o.value === id);
+                      //   onChangeHandler("itemId", id);
+                      onChangeHandler("item", e.value);
+                      // optionally auto-fill price if product contains it
+                      //   if (selected && selected.price)
+                      //     onChangeHandler("price", selected.price.toString());
+                    }}
+                    filter
+                    showClear
+                    disabled
+                  />
+                </div>
 
-            <div className="col-6">
-              <label>Estimated unit price</label>
-              <InputText
-                value={
-                  selectedRow.price ? selectedRow.price.replace("₹", "") : ""
-                }
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  onChangeHandler("price", e.target.value)
-                }
-              />
-            </div>
+                <div className={styles.fields}>
+                  <label>Item {mandatorySymbol()}</label>
+                  <Dropdown
+                    options={productOptions}
+                    value={selectedRow.item}
+                    optionLabel="name"
+                    optionValue="value"
+                    placeholder="Select item"
+                    style={{ width: "100%" }}
+                    onChange={(e: any) => {
+                      //   const id = e.value;
+                      //   const selected = productOptions.find((o) => o.value === id);
+                      //   onChangeHandler("itemId", id);
+                      onChangeHandler("item", e.value);
+                      // optionally auto-fill price if product contains it
+                      //   if (selected && selected.price)
+                      //     onChangeHandler("price", selected.price.toString());
+                    }}
+                    filter
+                    showClear
+                  />
+                </div>
 
-            <div className="col-6">
-              <label>Total estimated</label>
-              <InputText
-                value={
-                  selectedRow.total ? selectedRow.total.replace("₹", "") : ""
-                }
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  onChangeHandler("total", e.target.value)
-                }
-              />
-            </div>
+                <div className={styles.fields}>
+                  <label>Quantity {mandatorySymbol()}</label>
+                  <InputText
+                    value={selectedRow.quantity}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      onChangeHandler("quantity", e.target.value)
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </div>
 
-            <div className="col-6">
-              <label>Required date</label>
-              <Calendar
-                value={selectedRow.date ? new Date(selectedRow.date) : null}
-                onChange={(e: any) =>
-                  onChangeHandler("date", e.value?.toLocaleDateString() || "")
-                }
-                dateFormat="dd/mm/yy"
-              />
-            </div>
+                <div className={styles.fields}>
+                  <label>Estimated unit price {mandatorySymbol()}</label>
+                  <InputText
+                    value={
+                      selectedRow.price
+                        ? selectedRow.price.replace("₹", "")
+                        : ""
+                    }
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      onChangeHandler("price", e.target.value)
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </div>
 
-            <div className="col-12">
-              <label>Justification</label>
-              <InputTextarea
-                rows={3}
-                value={selectedRow.justification}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  onChangeHandler("justification", e.target.value)
-                }
-              />
-            </div>
-          </div>
-        )}
-      </Dialog>
-    </div>
+                <div className={styles.fields}>
+                  <label>Total estimated {mandatorySymbol()}</label>
+                  <InputText
+                    value={
+                      selectedRow.total
+                        ? selectedRow.total.replace("₹", "")
+                        : ""
+                    }
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      onChangeHandler("total", e.target.value)
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </div>
+
+                <div className={styles.fields}>
+                  <label>Required date {mandatorySymbol()}</label>
+                  <Calendar
+                    value={selectedRow.date ? new Date(selectedRow.date) : null}
+                    onChange={(e: any) =>
+                      onChangeHandler(
+                        "date",
+                        e.value?.toLocaleDateString() || "",
+                      )
+                    }
+                    dateFormat="dd/mm/yy"
+                    style={{ width: "100%" }}
+                  />
+                </div>
+
+                <div className={styles.fields}>
+                  <label>Justification {mandatorySymbol()}</label>
+                  <InputTextarea
+                    rows={3}
+                    value={selectedRow.justification}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      onChangeHandler("justification", e.target.value)
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </div>
+              </div>
+            )}
+          </Dialog>
+        </div>
+      )}
+    </>
   );
 };
 

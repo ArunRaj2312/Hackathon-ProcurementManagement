@@ -1,8 +1,26 @@
 /*Common styles for all pages*/
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
 #workbenchPageContent {
   max-width: 100%;
   border: 0 !important;
   margin: 0;
+}
+div,
+p,
+a,
+h1,
+h2,
+h3,
+h4,
+button,
+input,
+textarea,
+select,
+option,
+label,
+li {
+  font-family: "Poppins", sans-serif !important;
+  font-style: normal;
 }
 
 .content_3f3fd3c2,
@@ -43,4 +61,80 @@
 .ControlZone {
   margin: 0px !important;
   padding: 0px !important;
+}
+
+/* prime styles */
+.p-multiselect:not(.p-disabled).p-focus {
+  box-shadow: unset !important;
+  outline: none !important;
+}
+.p-dropdown:not(.p-disabled).p-focus,
+.p-inputtext:enabled:focus,
+.p-calendar:not(.p-calendar-disabled).p-focus > .p-inputtext {
+  box-shadow: none !important;
+  border-color: #c5c6cc !important;
+}
+.p-inputtext:enabled:focus,
+.p-dropdown:not(.p-disabled).p-focus,
+.p-calendar:not(.p-calendar-disabled).p-focus > .p-inputtext,
+.p-button:focus {
+  box-shadow: unset;
+  border-color: #c5c6cc important;
+}
+.p-paginator {
+  background-color: transparent !important;
+  gap: 8px;
+  border: none;
+}
+.p-paginator button {
+  background-color: #ffffff80;
+  border: none;
+  color: #333333;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  height: 32px;
+  min-width: 32px;
+}
+.p-paginator-pages {
+  display: flex;
+  gap: 8px;
+}
+.p-paginator .p-highlight {
+  background-color: var(--themeColorDark);
+  color: #fff !important;
+}
+.p-button {
+  padding: 0.3rem 0.5rem;
+  border: none !important;
+  font-size: 14px;
+}
+.p-dialog .p-dialog-header .p-dialog-title {
+  font-size: 16px;
+  text-align: center;
+}
+.p-dialog-header,
+.p-dialog-footer {
+  border: none;
+}
+
+/* common classes */
+.editIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  i {
+    color: var(--royalBlue);
+    font-size: 16px;
+  }
+}
+.editIcon:hover {
+  background-color: #e3ebff;
+}
+textarea {
+  resize: none;
 }

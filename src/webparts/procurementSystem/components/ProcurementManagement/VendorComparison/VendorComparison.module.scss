@@ -146,6 +146,9 @@
         }
       }
     }
+    .activeCard {
+      border: 2px solid var(--themeColorDark);
+    }
   }
 
   //ai overview styles...

@@ -1,0 +1,92 @@
+.loaderBody {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f4f6f9;
+}
+
+/* ── Overlay (use this to cover your SPFx webpart while loading) ── */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 9999;
+}
+
+/* ── Spinner ── */
+.spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #04a238;
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Text ── */
+.loader-text {
+  font-size: 15px;
+  color: #555;
+  letter-spacing: 0.02em;
+}
+
+.loader-text span {
+  color: #04a238;
+  font-weight: 600;
+}
+
+/* ── Progress bar ── */
+.progress-bar {
+  width: 200px;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #04a238;
+  border-radius: 99px;
+  animation: load 2.5s ease-in-out forwards;
+}
+
+@keyframes load {
+  0% {
+    width: 0%;
+  }
+  40% {
+    width: 55%;
+  }
+  80% {
+    width: 85%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* ── Fade out when done ── */
+.loader-overlay.done {
+  animation: fadeOut 0.4s 0.2s ease forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

@@ -20,6 +20,15 @@
   }
 }
 
+.fieldsFlex {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  .fields {
+    width: 100%;
+  }
+}
+
 /* PrimeReact DataTable overrides */
 :global(.p-datatable) {
   background: transparent;
@@ -27,7 +36,7 @@
 
 :global(.p-datatable .p-datatable-thead > tr > th) {
   background: transparent;
-  color: #5f6f5f;
+  color: #0a9b2f;
   font-size: 13px;
   font-weight: 600;
   border: none;
