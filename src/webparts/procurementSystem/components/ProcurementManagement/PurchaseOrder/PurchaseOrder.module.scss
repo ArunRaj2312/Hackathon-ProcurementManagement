@@ -41,7 +41,9 @@
       margin: 0;
       margin-bottom: 10px;
       text-transform: uppercase;
-      color: #a2a8c1;
+      // color: #a2a8c1;
+      color: #162150;
+      font-weight: 600;
       text-decoration: underline;
       font-size: var(--fontSizeMedium);
     }
@@ -52,7 +54,8 @@
       .itemCon {
         .itemLabelCon {
           margin: 0;
-          color: var(--lightGrey);
+          // color: var(--lightGrey);
+          color: #7c7c7c;
           font-weight: 500;
           font-size: var(--fontSizeMedium);
         }
@@ -125,6 +128,7 @@
 .lineItems h3 {
   color: #0a9b2f;
   margin-top: 0px;
+  font-size: 16px;
 }
 
 table {
@@ -198,7 +202,8 @@ td {
 
 .actions h3 {
   color: #0a9b2f;
-  margin-bottom: 16px;
+  font-size: 16px;
+  margin: 0px 0px 16px 0px;
 }
 
 .primary {
