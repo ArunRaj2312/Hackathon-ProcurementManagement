@@ -1,7 +1,31 @@
+/* eslint-disable no-void */
+/* eslint-disable react/self-closing-comp */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import basicInfoStyles from "../BasicInformation/BasicInformation.module.scss";
-const BasicInformation = (props: { data?: any }) => {
+import { 
+  // useEffect,
+   useState } from "react";
+// import { getBasicInfoAI } from "../../../../../services/aiService";
+
+const BasicInformation = (props: { data: any }): JSX.Element => {
   const data = props.data || {};
+
+  const [aiOverview, setAiOverview] = useState<string>(
+    "Analyzing request with AI...",
+  );
+setAiOverview("")
+  // useEffect(() => {
+  //   const loadAI = async (): Promise<void> => {
+  //     const response = await getBasicInfoAI(data);
+
+  //     setAiOverview(response);
+  //   };
+
+  //   if (data) {
+  //     void loadAI();
+  //   }
+  // }, [data]);
   return (
     <>
       <div className={basicInfoStyles.layoutCon}>
@@ -49,7 +73,7 @@ const BasicInformation = (props: { data?: any }) => {
             </div>
           </div>
           {/* documents */}
-          <p className={basicInfoStyles.subtitle}>Documents</p>
+          {/* <p className={basicInfoStyles.subtitle}>Documents</p>
           <div className={basicInfoStyles.subTitleCon}>
             <div className={basicInfoStyles.fileMainCon}>
               <div className={basicInfoStyles.fileCon}>
@@ -65,7 +89,7 @@ const BasicInformation = (props: { data?: any }) => {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
           {/* requester details */}
           <p className={basicInfoStyles.subtitle}>Requester Details</p>
           <div className={basicInfoStyles.subTitleCon}>
@@ -98,7 +122,7 @@ const BasicInformation = (props: { data?: any }) => {
           </div>
         </div>
         {/* AI overview */}
-        <div className={basicInfoStyles.aiOverviewMainCon}>
+        {/* <div className={basicInfoStyles.aiOverviewMainCon}>
           <div className={basicInfoStyles.aiOverviewLabelCon}>
             <p className={basicInfoStyles.labelStyle}>
               <i
@@ -124,6 +148,23 @@ const BasicInformation = (props: { data?: any }) => {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
               nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
             </p>
+          </div>
+        </div> */}
+        {/* AI overview */}
+        <div className={basicInfoStyles.aiOverviewMainCon}>
+          <div className={basicInfoStyles.aiOverviewLabelCon}>
+            <p className={basicInfoStyles.labelStyle}>
+              <i
+                className={`${basicInfoStyles.aiIconStyle} pi pi-sparkles`}
+              ></i>
+              AI Overview
+            </p>
+          </div>
+
+          <div className={basicInfoStyles.aiContentCon}>
+            {aiOverview.split("\n").map((line, index) => (
+              <p key={index}>{line}</p>
+            ))}
           </div>
         </div>
       </div>
