@@ -1,8 +1,19 @@
 import * as React from "react";
 import styles from "./Approval.module.scss";
 
-const Approval: React.FC<{ data?: any }> = (props) => {
+const Approval: React.FC<{
+  data?: any;
+  userRole?: string;
+  userDetails?: any;
+  onDataChange?: (data: any) => void;
+}> = (props) => {
   const data = props.data || {};
+  const userRole = props.userRole || "";
+  const userDetails = props.userDetails || {
+    text: "",
+    secondaryText: "",
+    id: "",
+  };
   return (
     <div className={styles.container}>
       {/* Top Section */}
@@ -140,27 +151,42 @@ const Approval: React.FC<{ data?: any }> = (props) => {
 
       {/* Approval Section (separated panel) */}
       <div className={styles.approvalPanel}>
-        <div className={styles.approvalHeader}>
-          <div className={styles.approver}>
-            <div className={styles.avatar}>👤</div>
-            <div>
-              <strong className={styles.mainText}>Head of Procurement</strong>
-              <div className={styles.subText}>Mohan</div>
+        {userRole != "User" && (
+          <div className={styles.approvalHeader}>
+            <div className={styles.approver}>
+              <div className={styles.avatar}>👤</div>
+              <div>
+                <strong className={styles.mainText}>{userRole}</strong>
+                <div className={styles.subText}>{userDetails.text}</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className={styles.approvalBody}>
           <label className={styles.label}>Add comment</label>
           <textarea
             className={styles.textarea}
-            defaultValue="Price within budget. Vendor approved."
+            disabled={userRole == "User"}
+            value={props.data?.comments || ""}
+            onChange={(e) => {
+              props.onDataChange &&
+                props.onDataChange((prev: any) => ({
+                  ...prev,
+                  approval: {
+                    ...prev.approval,
+                    comments: e.target.value,
+                  },
+                }));
+
+              console.log(e.target.value);
+            }}
           />
 
-          <div className={styles.actions}>
+          {/* <div className={styles.actions}>
             <button className={styles.approve}>✔ Approve</button>
             <button className={styles.reject}>✖ Reject</button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

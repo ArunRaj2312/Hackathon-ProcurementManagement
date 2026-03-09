@@ -1,62 +1,37 @@
 import * as React from "react";
 import { useState } from "react";
 import vendorStyles from "../VendorComparison/VendorComparison.module.scss";
-const VendorComparison = (props: { data?: any }) => {
-  const tempVendor = props.data?.vendors || [
-    {
-      id: 1,
-      unit: "110",
-      days: "12",
-      finalScore: "90",
-      ontimeDelivery: "92",
-      qualityScore: "88",
-      viewScoreBreakdown: {
-        priceCompetitiveness: "85",
-        deliveryTimeline: "90",
-        HistoricalPerformance: "92",
-        qualityCertification: "95",
-      },
-    },
-    {
-      id: 2,
-      unit: "115",
-      days: "15",
-      finalScore: "95",
-      ontimeDelivery: "82",
-      qualityScore: "78",
-      viewScoreBreakdown: {
-        priceCompetitiveness: "81",
-        deliveryTimeline: "70",
-        HistoricalPerformance: "82",
-        qualityCertification: "95",
-      },
-    },
-    {
-      id: 3,
-      unit: "105",
-      days: "18",
-      finalScore: "75",
-      ontimeDelivery: "92",
-      qualityScore: "78",
-      viewScoreBreakdown: {
-        priceCompetitiveness: "95",
-        deliveryTimeline: "92",
-        HistoricalPerformance: "92",
-        qualityCertification: "86",
-      },
-    },
-  ];
+// import { getVendorComparisonAI } from "../../../../../services/aiService";
+const VendorComparison = (props: {
+  data?: any;
+  onDataChange?: (data: any) => void;
+}) => {
   const [openVendor, setOpenVendor] = useState<number | null>(null);
+  const [aiOverview, setAiOverview] = useState<string>(
+    "Analyzing vendors with AI...",
+  );
   const handleToggle = (id: number) => {
     setOpenVendor((prev) => (prev === id ? null : id));
   };
-
+  setAiOverview("");
   // useEffect(() => {
   //   if (props.onDataChange) {
   //     props.onDataChange({ vendors: tempVendor });
   //   }
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
+
+  // useEffect(() => {
+  //   const loadAI = async () => {
+  //     const result = await getVendorComparisonAI(tempVendor);
+
+  //     setAiOverview(result);
+  //   };
+
+  // loadAI();
+  // }, []);
+  console.log("props.data", props.data);
+
   return (
     <>
       <div className={vendorStyles.vendorLayoutCon}>
@@ -67,8 +42,32 @@ const VendorComparison = (props: { data?: any }) => {
           </p>
         </div>
         <div className={vendorStyles.cardLayoutCon}>
-          {tempVendor?.map((item: any, index: number) => (
-            <div className={vendorStyles.cardMainCon} key={item?.id}>
+          {props.data?.vendors?.map((item: any, index: number) => (
+            <div
+              className={
+                index == 0
+                  ? `${vendorStyles.activeCard} ${vendorStyles.cardMainCon}`
+                  : vendorStyles.cardMainCon
+              }
+              key={item?.id}
+              onClick={() => {
+                let selectedVendorData = [...props.data?.vendors];
+                selectedVendorData = selectedVendorData.map((vendor) => {
+                  if (vendor.id === item.id) {
+                    return { ...vendor, selected: true };
+                  } else {
+                    return { ...vendor, selected: false };
+                  }
+                });
+                props.onDataChange &&
+                  props.onDataChange((prev: any) => ({
+                    ...prev,
+                    vendorComparison: {
+                      vendor: selectedVendorData,
+                    },
+                  }));
+              }}
+            >
               <div className={vendorStyles.vendorNameMainCon}>
                 <div className={vendorStyles.vendorNameCon}>
                   <p className={vendorStyles.vendorNameStyle}>
@@ -180,23 +179,28 @@ const VendorComparison = (props: { data?: any }) => {
               AI Overview
             </p>
           </div>
+          {/* <div className={vendorStyles.aiContentCon}>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
+            </p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
+            </p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
+            </p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
+            </p>
+          </div> */}
           <div className={vendorStyles.aiContentCon}>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
+            {aiOverview?.split("\n").map((line, index) => (
+              <p key={index}>{line}</p>
+            ))}
           </div>
         </div>
       </div>

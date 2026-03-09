@@ -16,7 +16,8 @@ import ProcurementSystem from "./components/ProcurementSystem";
 import { IProcurementSystemProps } from "./components/IProcurementSystemProps";
 
 export interface IProcurementSystemWebPartProps {
-  description: string;
+  // description: string;
+  context?: any;
 }
 
 export default class ProcurementSystemWebPart extends BaseClientSideWebPart<IProcurementSystemWebPartProps> {
@@ -27,6 +28,7 @@ export default class ProcurementSystemWebPart extends BaseClientSideWebPart<IPro
     const element: React.ReactElement<IProcurementSystemProps> =
       React.createElement(
         ProcurementSystem,
+        { context: this.context },
         // {
         //   description: this.properties.description,
         //   isDarkTheme: this._isDarkTheme,

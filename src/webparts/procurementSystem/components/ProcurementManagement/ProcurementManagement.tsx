@@ -2,6 +2,8 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
+import { Checkbox } from "primereact/checkbox";
 import procurementSysStyles from "./ProcurementManagement.module.scss";
 import BasicInformation from "./BasicInformation/BasicInformation";
 import VendorComparison from "./VendorComparison/VendorComparison";
@@ -9,12 +11,48 @@ import Approval from "./Approval/Approval";
 import PurchaseOrder from "./PurchaseOrder/PurchaseOrder";
 import Invoice from "./Invoice/Invoice";
 import SPServices from "../../../../CommonServices/SPServices";
+import { sp } from "@pnp/sp/presets/all";
 
-const ProcurementSystem = () => {
+const ProcurementSystem = (props: any) => {
   const navigate = useNavigate();
 
+  let loggedInUserEmail = props.context._pageContext._user.email;
+  const stepperArr = [
+    {
+      id: 1,
+      title: "Basic Information",
+      icon: "pi pi-info-circle",
+    },
+    {
+      id: 2,
+      title: "Vendor Comparison",
+      icon: "pi pi-inbox",
+    },
+    {
+      id: 3,
+      title: "Approval",
+      icon: "pi pi-check-circle",
+    },
+    {
+      id: 4,
+      title: "Purchase Order",
+      icon: "pi pi-shop",
+    },
+    {
+      id: 5,
+      title: "Invoice",
+      icon: "pi pi-receipt",
+    },
+  ];
+
+  const [userRole, setUserRole] = useState<string>("User");
+  const [userDetails, setUserDetails] = useState<any>({
+    text: "",
+    secondaryText: "",
+    id: "",
+  });
   const [selectedStepperVersionId, setselectedStepperVersionId] =
-    useState<number>(5);
+    useState<number>(1);
   const [formData, setFormData] = useState<any>({
     basicInformation: {
       prId: "PR-001",
@@ -115,6 +153,112 @@ const ProcurementSystem = () => {
       dueDate: "05/04/2026",
     },
   });
+  const [vendorDialogVisible, setVendorDialogVisible] =
+    useState<boolean>(false);
+  const [vendorsList, setVendorsList] = useState<any[]>([]);
+  const vendorListName = "VendorDetails"; // change this to your actual vendors list name
+
+  const approveRejectComments = async (status: string) => {
+    let Json: any = {
+      Comments: formData.approval.comments,
+      Status: status,
+    };
+    if (status === "Approved") {
+      Json = { ...Json, ActiveTab: 4 };
+    }
+    await SPServices.SPUpdateItem({
+      Listname: "ProcurementDetails",
+      ID: formData.basicInformation.id,
+      RequestJSON: {
+        ...Json,
+      },
+    });
+    setVendorDialogVisible(false);
+    navigate("/");
+  };
+  const addSelectedVendor = async () => {
+    const selected = vendorsList.filter((v) => v.isSelected);
+    for (let i = 0; i < selected.length; i++) {
+      const sel = selected[i];
+      await SPServices.SPAddItem({
+        Listname: "SelectedVendorDetails",
+        RequestJSON: {
+          PRIdId: formData.basicInformation.id,
+          VendorId: sel.id,
+        },
+      });
+      if (i === selected.length - 1) {
+        // after all selected vendors are added, you can fetch the updated list or update the state accordingly
+        await SPServices.SPUpdateItem({
+          Listname: "ProcurementDetails",
+          ID: formData.basicInformation.id,
+          RequestJSON: {
+            ActiveTab: 2, // move to next step after vendor selection
+          },
+        });
+        setVendorDialogVisible(false);
+        navigate("/");
+      }
+    }
+    console.log("Selected vendors (name,id,isSlected):", selected);
+  };
+  const addUserSelectedVendor = async () => {
+    const selected = formData.vendorComparison.vendor?.filter(
+      (v: any) => v.selected,
+    );
+    if (selected.length > 0) {
+      const sel = selected[0];
+      await SPServices.SPUpdateItem({
+        Listname: "SelectedVendorDetails",
+        ID: sel.id,
+        RequestJSON: {
+          Selected: true,
+        },
+      });
+      // after all selected vendors are added, you can fetch the updated list or update the state accordingly
+      await SPServices.SPUpdateItem({
+        Listname: "ProcurementDetails",
+        ID: formData.basicInformation.id,
+        RequestJSON: {
+          ActiveTab: 3, // move to next step after vendor selection
+        },
+      });
+      navigate("/");
+    } else {
+      navigate("/");
+    }
+    navigate("/");
+    console.log("Selected vendors (name,id,isSlected):", selected);
+  };
+
+  const fetchVendors = async (prId: any) => {
+    try {
+      const res: any[] = await SPServices.SPReadItems({
+        Listname: vendorListName,
+        Select: "Id,Title,PRItemId,PRItem/ID",
+        Expand: "PRItem",
+        Filter: [
+          {
+            FilterKey: "PRItemId",
+            Operator: "eq",
+            FilterValue: prId,
+          },
+        ],
+      });
+      console.log(prId, res);
+
+      const mapped = (res || []).map((item: any) => ({
+        name: item.Title || "",
+        id: item.Id || "",
+        isSelected: false,
+      }));
+
+      setVendorsList(mapped);
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      setVendorsList([]);
+    }
+  };
 
   const getSelectedVendorData = async (prId: string) => {
     try {
@@ -138,6 +282,8 @@ const ProcurementSystem = () => {
         finalScore: item.FinalScore || "",
         ontimeDelivery: item.OnTimeDelivery || "",
         qualityScore: item.QualityScore || "",
+        aiRecommeded: item.AIRecommended || false,
+        selected: item.Selected || false,
         viewScoreBreakdown: {
           priceCompetitiveness: "",
           deliveryTimeline: "",
@@ -166,7 +312,9 @@ const ProcurementSystem = () => {
         console.log("Data from SP List:", res);
         // Map the response to formData structure if needed
         setFormData({
+          ActiveTab: res.ActiveTab || 1,
           basicInformation: {
+            id: res.Id,
             prId: res.Item?.PRId || "",
             item: res.Item?.Title || "",
             quantity: res.Quantity || "",
@@ -181,14 +329,26 @@ const ProcurementSystem = () => {
             requesterRequiredDate: "27/02/2026",
           },
           vendorComparison: {
-            vendors: [...selectedVendorData],
+            vendors: [...selectedVendorData], // Assuming only one vendor is selected,
           },
           approval: {
-            selectedVendor: {
-              name: "Vendor 1",
-              price: "110",
-              days: "12",
-              finalScore: "90",
+            selectedVendor: [...selectedVendorData].find(
+              (vendor) => vendor.selected,
+            ) || {
+              id: "",
+              unit: "",
+              days: "",
+              finalScore: "",
+              ontimeDelivery: "",
+              qualityScore: "",
+              aiRecommeded: false,
+              selected: false,
+              viewScoreBreakdown: {
+                priceCompetitiveness: "",
+                deliveryTimeline: "",
+                HistoricalPerformance: "",
+                qualityCertification: "",
+              },
             },
             purchaseSummary: {
               prId: "PR-001",
@@ -196,6 +356,7 @@ const ProcurementSystem = () => {
               quantity: "20 Units",
               totalAmount: "₹13,60,000",
             },
+            comments: "",
           },
           purchaseOrder: {
             poNumber: "PO-2026-001",
@@ -222,45 +383,12 @@ const ProcurementSystem = () => {
             dueDate: "05/04/2026",
           },
         });
+        await fetchVendors(res.ItemId || "");
       })
       .catch((err) => {
         console.error("Error fetching data from SP List:", err);
       });
   };
-  useEffect(() => {
-    void getProcurementData();
-
-    // debug: show collected formData whenever it changes
-    console.log("Collected formData:", formData);
-  }, []);
-  const stepperArr = [
-    {
-      id: 1,
-      title: "Basic Information",
-      icon: "pi pi-info-circle",
-    },
-    {
-      id: 2,
-      title: "Vendor Comparison",
-      icon: "pi pi-info-circle",
-    },
-    {
-      id: 3,
-      title: "Approval",
-      icon: "pi pi-info-circle",
-    },
-    {
-      id: 4,
-      title: "Purchase Order",
-      icon: "pi pi-info-circle",
-    },
-    {
-      id: 5,
-      title: "Invoice",
-      icon: "pi pi-info-circle",
-    },
-  ];
-  console.log(setselectedStepperVersionId);
 
   // Stepper func
   const customStepperFunction = () => {
@@ -270,9 +398,9 @@ const ProcurementSystem = () => {
           {stepperArr.map((item, index) => (
             <div
               className={procurementSysStyles.customStepperItem}
-              onClick={() => {
-                setselectedStepperVersionId(item.id);
-              }}
+              // onClick={() => {
+              //   setselectedStepperVersionId(item.id);
+              // }}
             >
               <div className={procurementSysStyles.stepperTitleContainer}>
                 <i
@@ -308,6 +436,59 @@ const ProcurementSystem = () => {
     );
   };
 
+  // Vendor selection dialog state
+
+  const toggleVendorSelection = (id: any) => {
+    const updated = vendorsList.map((v) => {
+      if (v.id === id) {
+        const newSel = !v.isSelected;
+        return { ...v, isSelected: newSel, isSlected: newSel };
+      }
+      return v;
+    });
+    setVendorsList(updated);
+  };
+
+  const getApproverConfig = async () => {
+    await SPServices.SPReadItems({
+      Listname: "ApproverConfig",
+      Select: "*,Approver/Title",
+      Expand: "Approver",
+      Filter: [
+        {
+          FilterKey: "Approver/EMail",
+          Operator: "eq",
+          FilterValue: loggedInUserEmail,
+        },
+      ],
+    })
+      .then(async (res: any) => {
+        if (res && res.length > 0) {
+          setUserRole(res[0].Role);
+        }
+        await getProcurementData();
+        console.log("Approver config data", res);
+      })
+      .catch((err) => {
+        console.error("Error fetching approver config data", err);
+      });
+  };
+
+  const getCurrentUserDetails = async () => {
+    await sp.web
+      .ensureUser(loggedInUserEmail.toLowerCase())
+      .then(async (user: any) => {
+        setUserDetails({
+          text: user.data.Title,
+          secondaryText: user.data.Email,
+          id: user.data.Id,
+        });
+        await getApproverConfig();
+      });
+  };
+  useEffect(() => {
+    if (loggedInUserEmail) void getCurrentUserDetails();
+  }, []);
   return (
     <div className={procurementSysStyles.mainBodyLayout}>
       {customStepperFunction()}
@@ -319,13 +500,21 @@ const ProcurementSystem = () => {
       )}
       {stepperArr?.find((e) => e?.id === selectedStepperVersionId)?.title ===
       "Vendor Comparison" ? (
-        <VendorComparison data={formData.vendorComparison} />
+        <VendorComparison
+          data={formData.vendorComparison}
+          onDataChange={setFormData}
+        />
       ) : (
         ""
       )}
       {stepperArr?.find((e) => e?.id === selectedStepperVersionId)?.title ===
       "Approval" ? (
-        <Approval data={formData.approval} />
+        <Approval
+          data={formData.approval}
+          userRole={userRole}
+          userDetails={userDetails}
+          onDataChange={setFormData}
+        />
       ) : (
         ""
       )}
@@ -341,24 +530,96 @@ const ProcurementSystem = () => {
       ) : (
         ""
       )}
+      {/* Vendor selection dialog */}
+      <Dialog
+        header="Select Vendor"
+        visible={vendorDialogVisible}
+        style={{ width: "640px" }}
+        modal
+        onHide={() => setVendorDialogVisible(false)}
+      >
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+          {vendorsList && vendorsList.length ? (
+            vendorsList.map((v) => (
+              <div
+                key={v.id}
+                style={{
+                  width: "30%",
+                  minWidth: 150,
+                  border: "1px solid #f0f0f0",
+                  padding: 10,
+                  borderRadius: 8,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Checkbox
+                  checked={v.isSelected}
+                  onChange={() => toggleVendorSelection(v.id)}
+                />
+                <div>{v.name}</div>
+              </div>
+            ))
+          ) : (
+            <div>No vendors found.</div>
+          )}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 8,
+            marginTop: 12,
+          }}
+        >
+          <Button
+            label="Close"
+            className="p-button-secondary"
+            onClick={() => setVendorDialogVisible(false)}
+          />
+          <Button
+            label="Send RFQ"
+            icon="pi pi-send"
+            className="p-button-success"
+            onClick={async () => {
+              await addSelectedVendor();
+            }}
+          />
+        </div>
+      </Dialog>
       {/* Footer with Cancel and Submit buttons */}
       <div
         style={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
+          // position: "fixed",
+          // left: 0,
+          // right: 0,
+          // bottom: 0,
           padding: "12px 20px",
           background: "#ffffff",
           borderTop: "1px solid #e6e6e6",
           display: "flex",
           justifyContent: "flex-end",
           gap: 12,
-          zIndex: 1000,
+          // zIndex: 1000,
         }}
       >
+        {selectedStepperVersionId != 1 && (
+          <Button
+            label={"Previous"}
+            icon="pi pi-arrow-left"
+            onClick={() => setselectedStepperVersionId((prev) => prev - 1)}
+          />
+        )}
+        {/* <Button
+          label="Select Vendor"
+          icon="pi pi-users"
+          className="p-button-text"
+          
+        /> */}
         <Button
           label="Cancel"
+          icon="pi pi-times"
           className="p-button-secondary"
           onClick={() => {
             // navigate back to dashboard or reset stepper
@@ -366,38 +627,60 @@ const ProcurementSystem = () => {
             setselectedStepperVersionId(1);
           }}
         />
-        <Button
-          label="Submit"
-          icon="pi pi-check"
-          className="p-button-success"
-          onClick={async () => {
-            try {
-              if (!formData || Object.keys(formData).length === 0) {
-                console.warn("No data available to submit.");
-                return;
-              }
-
-              const { sp } = await import("@pnp/sp/presets/all");
-
-              // TODO: replace 'ProcurementList' with your list name and map fields correctly
-              const list = sp.web.lists.getByTitle("ProcurementList");
-
-              const payload: any = {
-                Title: formData.prId || formData.item || "New PR",
-                Item: formData.item,
-                Quantity: formData.quantity,
-                EstimatedUnitPrice: formData.estimatedUnitPrice,
-                TotalEstimated: formData.totalEstimated,
-                RequestedBy: formData.requestedBy || formData.requestedBy,
-              };
-
-              const created = await list.items.add(payload);
-              console.log("Created item:", created);
-            } catch (err) {
-              console.error("Error saving to SharePoint list:", err);
-            }
-          }}
-        />
+        {/* {formData.ActiveTab >= selectedStepperVersionId && (
+          <Button
+            label={"Next"}
+            icon="pi pi-arrow-right"
+            onClick={() => setselectedStepperVersionId((prev) => prev + 1)}
+          />
+        )} */}
+        {formData.ActiveTab === 1 && selectedStepperVersionId == 1 ? (
+          <Button
+            label="Proceed to RFQ"
+            icon="pi pi-save"
+            onClick={async () => {
+              setVendorDialogVisible(true);
+            }}
+          />
+        ) : formData.ActiveTab === 2 && selectedStepperVersionId == 2 ? (
+          <Button
+            label="Submit"
+            icon="pi pi-check"
+            className="p-button-success"
+            onClick={async () => {
+              await addUserSelectedVendor();
+            }}
+          />
+        ) : formData.ActiveTab === 3 &&
+          selectedStepperVersionId == 3 &&
+          userRole !== "User" ? (
+          <>
+            <Button
+              label="Approve"
+              icon="pi pi-check"
+              className="p-button-success"
+              onClick={async () => {
+                await approveRejectComments("Approved");
+                // await addUserSelectedVendor();
+              }}
+            />
+            <Button
+              label="Reject"
+              icon="pi pi-check"
+              className="p-button-success"
+              onClick={async () => {
+                await approveRejectComments("Rejected");
+                // await addUserSelectedVendor();
+              }}
+            />
+          </>
+        ) : Number(formData.ActiveTab) > Number(selectedStepperVersionId) ? (
+          <Button
+            label={"Next"}
+            icon="pi pi-arrow-right"
+            onClick={() => setselectedStepperVersionId((prev) => prev + 1)}
+          />
+        ) : null}
       </div>
     </div>
   );

@@ -3,7 +3,11 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import ProcurementManagement from "./ProcurementManagement/ProcurementManagement";
 import Dashboard from "./ProcurementManagement/Dashboard/Dashboard";
 
-const MainComponent: React.FC = () => {
+interface IMainComponentProps {
+  context: any; // or WebPartContext
+}
+
+const MainComponent: React.FC<IMainComponentProps> = ({ context }) => {
   React.useEffect(() => {
     window.location.href = "#/";
   }, []);
@@ -14,7 +18,7 @@ const MainComponent: React.FC = () => {
           <Route path="/" element={<Dashboard />} />
           <Route
             path="/procurementmanagement"
-            element={<ProcurementManagement />}
+            element={<ProcurementManagement context={context} />}
           />
         </Routes>
       </div>
