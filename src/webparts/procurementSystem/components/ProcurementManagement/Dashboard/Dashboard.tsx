@@ -6,14 +6,20 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Dropdown } from "primereact/dropdown";
-import { useState, useEffect } from "react";
+import { Toast } from "primereact/toast";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Dashaboard.module.scss";
 import SPServices from "../../../../../CommonServices/SPServices";
 import { Calendar } from "primereact/calendar";
 import Loader from "../../Loader/Loader";
+import MainLoader from "../../Loader/MainLoader";
+import * as moment from "moment";
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const toast = useRef<Toast | null>(null);
+
   let newObj = {
     id: null,
     prId: "",
@@ -29,6 +35,15 @@ const Dashboard: React.FC = () => {
   const [productOptions, setProductOptions] = useState<any[]>([]);
   const [applicationLoader, setapplicationLoader] = useState<boolean>(true);
   const [data, setData] = useState<any[]>([]);
+  const [isLoader, setIsLoader] = useState(false);
+
+  const onChangeHandler = (key: string, value: string) => {
+    let tempDialog = {
+      ...selectedRow,
+    };
+    tempDialog[key] = value;
+    setSelectedRow({ ...tempDialog });
+  };
 
   const getProcurementData = async () => {
     await SPServices.SPReadItems({
@@ -40,7 +55,7 @@ const Dashboard: React.FC = () => {
         // Map the response to formData structure if needed
         const mappedData = res.map((item: any) => ({
           id: item.ID,
-          prId: item.Item.PRId || "",
+          prId: item.Item?.PRId || "",
           item: item.Item ? item.Item.Title : "", // assuming Item is a lookup
           quantity: item.Quantity,
           price: item.Price,
@@ -48,21 +63,15 @@ const Dashboard: React.FC = () => {
           date: item.Date,
           justification: item.Justification,
         }));
-        loadProducts(mappedData);
+        setData(mappedData);
+        setIsLoader(false);
       })
       .catch((err) => {
         console.error("Error fetching data from SP List:", err);
       });
   };
 
-  const onChangeHandler = (key: string, value: string) => {
-    let tempDialog = {
-      ...selectedRow,
-    };
-    tempDialog[key] = value;
-    setSelectedRow({ ...tempDialog });
-  };
-  const loadProducts = async (mappedData: any) => {
+  const loadProducts = async () => {
     try {
       // fetch ID and Title (and price if available)
       const items: any[] = await SPServices.SPReadItems({
@@ -75,26 +84,59 @@ const Dashboard: React.FC = () => {
         value: it.ID,
       }));
       setProductOptions(opts);
-      setData(mappedData);
+      await getProcurementData();
     } catch (err) {
       console.error("Failed to load product options", err);
     }
   };
-  // load product options from ProductDetails list
-  useEffect(() => {
-    setTimeout(() => {
-      setapplicationLoader(false);
-      void getProcurementData();
-    }, 3000);
-  }, []);
-  const LIST_NAME = "ProcurementDetails"; // change to your actual SharePoint list name
 
   const onSubmit = async () => {
+    let errorMsg = "";
+
+    if (!selectedRow.item) {
+      errorMsg = "Item is required.";
+    } else if (!selectedRow.quantity) {
+      errorMsg = "Quantity is required.";
+    } else if (
+      isNaN(Number(selectedRow.quantity)) ||
+      Number(selectedRow.quantity) <= 0
+    ) {
+      errorMsg = "Quantity must be a number greater than 0.";
+    } else if (!selectedRow.price) {
+      errorMsg = "Estimated unit price is required.";
+    } else if (
+      isNaN(Number(selectedRow.price)) ||
+      Number(selectedRow.price) <= 0
+    ) {
+      errorMsg = "Estimated unit price must be a number greater than 0.";
+    } else if (!selectedRow.total) {
+      errorMsg = "Total estimated is required.";
+    } else if (
+      isNaN(Number(selectedRow.total)) ||
+      Number(selectedRow.total) <= 0
+    ) {
+      errorMsg = "Total estimated must be a number greater than 0.";
+    } else if (!selectedRow.date) {
+      errorMsg = "Required date is required.";
+    } else if (!selectedRow.justification) {
+      errorMsg = "Justification is required.";
+    }
+
+    if (errorMsg) {
+      if (toast.current) {
+        toast.current.show({
+          severity: "error",
+          summary: "Validation Error",
+          detail: errorMsg,
+          life: 4000,
+        });
+      }
+
+      return;
+    }
+
     try {
-      // Prepare payload - adjust field names to match your SharePoint list internal names if needed
       const payload: any = {
-        // prId: selectedRow.prId,
-        // For lookup column in SharePoint, include the lookup id field (FieldInternalName + 'Id')
         ItemId: selectedRow.item,
         Quantity: selectedRow.quantity,
         Price: selectedRow.price,
@@ -105,29 +147,26 @@ const Dashboard: React.FC = () => {
       };
 
       if (selectedRow && selectedRow.id) {
-        // Update existing item (ensure ID field is present)
-        const id = selectedRow.id; // make sure your data includes the SharePoint item ID for updates
+        const id = selectedRow.id;
         await SPServices.SPUpdateItem({
-          Listname: LIST_NAME,
+          Listname: "ProcurementDetails",
           ID: id,
           RequestJSON: payload,
         });
       } else {
         // Add new item
         await SPServices.SPAddItem({
-          Listname: LIST_NAME,
+          Listname: "ProcurementDetails",
           RequestJSON: payload,
         });
       }
-
       setVisible(false);
+      setIsLoader(true);
+      await getProcurementData();
     } catch (error) {
       console.error("Error saving to SharePoint list:", error);
-      // optionally show a message to user
     }
   };
-
-  const navigate = useNavigate();
 
   const actionTemplate = (rowData: any) => (
     <div className="editIcon">
@@ -135,22 +174,34 @@ const Dashboard: React.FC = () => {
         className="pi pi-pencil"
         onClick={() => {
           navigate("/procurementmanagement", {
-            state: { selectedRow: rowData },
+            state: { selectedRow: rowData, id: rowData.id },
           });
         }}
       />
     </div>
   );
+
   const mandatorySymbol = (): JSX.Element => {
     return <span style={{ color: "red" }}>*</span>;
   };
 
-  return (
+  useEffect(() => {
+    setTimeout(() => {
+      setapplicationLoader(false);
+      setIsLoader(true);
+      void loadProducts();
+    }, 3000);
+  }, []);
+
+  return isLoader ? (
+    <MainLoader />
+  ) : (
     <>
       {applicationLoader ? (
         <Loader />
       ) : (
         <div className={styles.procurementWrapper}>
+          <Toast ref={toast} />
           {/* Header */}
           <div className={styles.pageHeader}>
             <h3>Procurement System</h3>
@@ -178,13 +229,18 @@ const Dashboard: React.FC = () => {
             <Column field="quantity" header="Quantity" />
             <Column field="price" header="Estimated Unit Price" />
             <Column field="total" header="Total Estimated" />
-            <Column field="date" header="Required Date" />
+            <Column
+              field="date"
+              header="Required Date"
+              body={(rowData) =>
+                rowData.date ? moment(rowData.date).format("DD/MM/YYYY") : " - "
+              }
+            />
             <Column body={actionTemplate} style={{ width: "4rem" }} />
           </DataTable>
 
-          {/* Assign Resource Dialog */}
           <Dialog
-            header="Assign resource"
+            header="Purchase Request"
             visible={visible}
             style={{ width: "40vw" }}
             onHide={() => setVisible(false)}
@@ -210,6 +266,28 @@ const Dashboard: React.FC = () => {
             {selectedRow && (
               <div className={styles.fieldsFlex}>
                 <div className={styles.fields}>
+                  <label>Item {mandatorySymbol()}</label>
+                  <Dropdown
+                    options={productOptions}
+                    value={selectedRow.item}
+                    optionLabel="name"
+                    optionValue="value"
+                    placeholder="Select item"
+                    style={{ width: "100%" }}
+                    onChange={(e: any) => {
+                      //   const id = e.value;
+                      //   const selected = productOptions.find((o) => o.value === id);
+                      //   onChangeHandler("itemId", id);
+                      onChangeHandler("item", e.value);
+                      // optionally auto-fill price if product contains it
+                      //   if (selected && selected.price)
+                      //     onChangeHandler("price", selected.price.toString());
+                    }}
+                    filter
+                    showClear
+                  />
+                </div>
+                <div className={styles.fields}>
                   <label>PR ID {mandatorySymbol()}</label>
                   <Dropdown
                     options={productOptions}
@@ -232,30 +310,6 @@ const Dashboard: React.FC = () => {
                     disabled
                   />
                 </div>
-
-                <div className={styles.fields}>
-                  <label>Item {mandatorySymbol()}</label>
-                  <Dropdown
-                    options={productOptions}
-                    value={selectedRow.item}
-                    optionLabel="name"
-                    optionValue="value"
-                    placeholder="Select item"
-                    style={{ width: "100%" }}
-                    onChange={(e: any) => {
-                      //   const id = e.value;
-                      //   const selected = productOptions.find((o) => o.value === id);
-                      //   onChangeHandler("itemId", id);
-                      onChangeHandler("item", e.value);
-                      // optionally auto-fill price if product contains it
-                      //   if (selected && selected.price)
-                      //     onChangeHandler("price", selected.price.toString());
-                    }}
-                    filter
-                    showClear
-                  />
-                </div>
-
                 <div className={styles.fields}>
                   <label>Quantity {mandatorySymbol()}</label>
                   <InputText

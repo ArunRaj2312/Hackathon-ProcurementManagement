@@ -8,9 +8,6 @@ interface IMainComponentProps {
 }
 
 const MainComponent: React.FC<IMainComponentProps> = ({ context }) => {
-  React.useEffect(() => {
-    window.location.href = "#/";
-  }, []);
   return (
     <HashRouter>
       <div>

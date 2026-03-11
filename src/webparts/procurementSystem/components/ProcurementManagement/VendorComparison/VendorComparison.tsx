@@ -4,6 +4,7 @@ import vendorStyles from "../VendorComparison/VendorComparison.module.scss";
 // import { getVendorComparisonAI } from "../../../../../services/aiService";
 const VendorComparison = (props: {
   data?: any;
+  activeTab: Number;
   onDataChange?: (data: any) => void;
 }) => {
   const [openVendor, setOpenVendor] = useState<number | null>(null);
@@ -13,7 +14,10 @@ const VendorComparison = (props: {
   const handleToggle = (id: number) => {
     setOpenVendor((prev) => (prev === id ? null : id));
   };
-  setAiOverview("");
+
+  React.useEffect(() => {
+    setAiOverview("");
+  }, []);
   // useEffect(() => {
   //   if (props.onDataChange) {
   //     props.onDataChange({ vendors: tempVendor });
@@ -45,27 +49,29 @@ const VendorComparison = (props: {
           {props.data?.vendors?.map((item: any, index: number) => (
             <div
               className={
-                index == 0
+                item.selected
                   ? `${vendorStyles.activeCard} ${vendorStyles.cardMainCon}`
                   : vendorStyles.cardMainCon
               }
               key={item?.id}
               onClick={() => {
-                let selectedVendorData = [...props.data?.vendors];
-                selectedVendorData = selectedVendorData.map((vendor) => {
-                  if (vendor.id === item.id) {
-                    return { ...vendor, selected: true };
-                  } else {
-                    return { ...vendor, selected: false };
-                  }
-                });
-                props.onDataChange &&
-                  props.onDataChange((prev: any) => ({
-                    ...prev,
-                    vendorComparison: {
-                      vendor: selectedVendorData,
-                    },
-                  }));
+                if (props.activeTab === 2) {
+                  let selectedVendorData = [...props.data?.vendors];
+                  selectedVendorData = selectedVendorData.map((vendor) => {
+                    if (vendor.id === item.id) {
+                      return { ...vendor, selected: true };
+                    } else {
+                      return { ...vendor, selected: false };
+                    }
+                  });
+                  props.onDataChange &&
+                    props.onDataChange((prev: any) => ({
+                      ...prev,
+                      vendorComparison: {
+                        vendors: selectedVendorData,
+                      },
+                    }));
+                }
               }}
             >
               <div className={vendorStyles.vendorNameMainCon}>

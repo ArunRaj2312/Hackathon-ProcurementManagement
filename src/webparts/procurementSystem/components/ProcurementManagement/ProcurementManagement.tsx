@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { Checkbox } from "primereact/checkbox";
@@ -12,9 +12,13 @@ import PurchaseOrder from "./PurchaseOrder/PurchaseOrder";
 import Invoice from "./Invoice/Invoice";
 import SPServices from "../../../../CommonServices/SPServices";
 import { sp } from "@pnp/sp/presets/all";
+import { ProcurementFormData } from "../../../../config/interface";
+import { newData } from "../../../../config/config";
 
 const ProcurementSystem = (props: any) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = location.state || 1;
 
   let loggedInUserEmail = props.context._pageContext._user.email;
   const stepperArr = [
@@ -53,110 +57,10 @@ const ProcurementSystem = (props: any) => {
   });
   const [selectedStepperVersionId, setselectedStepperVersionId] =
     useState<number>(1);
-  const [formData, setFormData] = useState<any>({
-    basicInformation: {
-      prId: "PR-001",
-      item: "Laptop - Dell Latitude 5440",
-      quantity: "20 Units",
-      estimatedUnitPrice: "68,000",
-      totalEstimated: "13,60,000",
-      requiredDate: "25/03/2026",
-      justification: "New Employee onboarding requirement",
-      requestedBy: "Swetha",
-      employeeId: "E-0052",
-      designation: "Admin",
-      location: "O365",
-      requesterRequiredDate: "27/02/2026",
-    },
-    vendorComparison: {
-      vendors: [
-        {
-          id: 1,
-          unit: "110",
-          days: "12",
-          finalScore: "90",
-          ontimeDelivery: "92",
-          qualityScore: "88",
-          viewScoreBreakdown: {
-            priceCompetitiveness: "85",
-            deliveryTimeline: "90",
-            HistoricalPerformance: "92",
-            qualityCertification: "95",
-          },
-        },
-        {
-          id: 2,
-          unit: "115",
-          days: "15",
-          finalScore: "95",
-          ontimeDelivery: "82",
-          qualityScore: "78",
-          viewScoreBreakdown: {
-            priceCompetitiveness: "81",
-            deliveryTimeline: "70",
-            HistoricalPerformance: "82",
-            qualityCertification: "95",
-          },
-        },
-        {
-          id: 3,
-          unit: "105",
-          days: "18",
-          finalScore: "75",
-          ontimeDelivery: "92",
-          qualityScore: "78",
-          viewScoreBreakdown: {
-            priceCompetitiveness: "95",
-            deliveryTimeline: "92",
-            HistoricalPerformance: "92",
-            qualityCertification: "86",
-          },
-        },
-      ],
-    },
-    approval: {
-      selectedVendor: {
-        name: "Vendor 1",
-        price: "110",
-        days: "12",
-        finalScore: "90",
-      },
-      purchaseSummary: {
-        prId: "PR-001",
-        item: "Laptop – Dell Latitude 5440",
-        quantity: "20 Units",
-        totalAmount: "₹13,60,000",
-      },
-    },
-    purchaseOrder: {
-      poNumber: "PO-2026-001",
-      issueDate: "22/02/2026",
-      vendor: { name: "Vendor 1", code: "VEN-2025-0142" },
-      deliveryDate: "06/03/2026",
-      paymentTerms: "Net 30 days",
-      lineItems: [
-        {
-          description: "Laptop-Dell Latitude 5440",
-          quantity: "20 units",
-          unitPrice: "68,000",
-          amount: "13,60,000",
-        },
-      ],
-    },
-    invoice: {
-      invoiceNumber: "INV-V-2026-142",
-      invoiceDate: "06/03/2026",
-      vendor: "Vendor 1",
-      vendorCode: "VEN-2025-0142",
-      gstNumber: "06AABC1234F1Z5",
-      amount: "₹1,29,800",
-      dueDate: "05/04/2026",
-    },
-  });
+  const [formData, setFormData] = useState<ProcurementFormData>(newData);
   const [vendorDialogVisible, setVendorDialogVisible] =
     useState<boolean>(false);
   const [vendorsList, setVendorsList] = useState<any[]>([]);
-  const vendorListName = "VendorDetails"; // change this to your actual vendors list name
 
   const approveRejectComments = async (status: string) => {
     let Json: any = {
@@ -176,6 +80,7 @@ const ProcurementSystem = (props: any) => {
     setVendorDialogVisible(false);
     navigate("/");
   };
+
   const addSelectedVendor = async () => {
     const selected = vendorsList.filter((v) => v.isSelected);
     for (let i = 0; i < selected.length; i++) {
@@ -188,22 +93,21 @@ const ProcurementSystem = (props: any) => {
         },
       });
       if (i === selected.length - 1) {
-        // after all selected vendors are added, you can fetch the updated list or update the state accordingly
         await SPServices.SPUpdateItem({
           Listname: "ProcurementDetails",
           ID: formData.basicInformation.id,
           RequestJSON: {
-            ActiveTab: 2, // move to next step after vendor selection
+            ActiveTab: 2,
           },
         });
         setVendorDialogVisible(false);
         navigate("/");
       }
     }
-    console.log("Selected vendors (name,id,isSlected):", selected);
   };
+
   const addUserSelectedVendor = async () => {
-    const selected = formData.vendorComparison.vendor?.filter(
+    const selected = formData.vendorComparison.vendors?.filter(
       (v: any) => v.selected,
     );
     if (selected.length > 0) {
@@ -215,12 +119,11 @@ const ProcurementSystem = (props: any) => {
           Selected: true,
         },
       });
-      // after all selected vendors are added, you can fetch the updated list or update the state accordingly
       await SPServices.SPUpdateItem({
         Listname: "ProcurementDetails",
         ID: formData.basicInformation.id,
         RequestJSON: {
-          ActiveTab: 3, // move to next step after vendor selection
+          ActiveTab: 3,
         },
       });
       navigate("/");
@@ -234,7 +137,7 @@ const ProcurementSystem = (props: any) => {
   const fetchVendors = async (prId: any) => {
     try {
       const res: any[] = await SPServices.SPReadItems({
-        Listname: vendorListName,
+        Listname: "VendorDetails",
         Select: "Id,Title,PRItemId,PRItem/ID",
         Expand: "PRItem",
         Filter: [
@@ -245,7 +148,6 @@ const ProcurementSystem = (props: any) => {
           },
         ],
       });
-      console.log(prId, res);
 
       const mapped = (res || []).map((item: any) => ({
         name: item.Title || "",
@@ -272,8 +174,6 @@ const ProcurementSystem = (props: any) => {
           },
         ],
       });
-
-      console.log("Data from SP List:", res);
 
       const tempVendor: any[] = res.map((item: any) => ({
         id: item.Id || "",
@@ -303,14 +203,13 @@ const ProcurementSystem = (props: any) => {
   const getProcurementData = async () => {
     await SPServices.SPReadItemUsingId({
       Listname: "ProcurementDetails",
-      SelectedId: 1,
-      Select: "*,Requestor/Title,Item/Title",
+      SelectedId: id,
+      Select: "*,Requestor/Title,Item/Title,Item/PRId",
       Expand: "Requestor,Item",
     })
       .then(async (res: any) => {
         const selectedVendorData: any[] = await getSelectedVendorData(res.Id);
-        console.log("Data from SP List:", res);
-        // Map the response to formData structure if needed
+
         setFormData({
           ActiveTab: res.ActiveTab || 1,
           basicInformation: {
@@ -326,7 +225,7 @@ const ProcurementSystem = (props: any) => {
             employeeId: "E-0052",
             designation: "Admin",
             location: "O365",
-            requesterRequiredDate: "27/02/2026",
+            requesterRequiredDate: res.Created || "",
           },
           vendorComparison: {
             vendors: [...selectedVendorData], // Assuming only one vendor is selected,
@@ -390,6 +289,44 @@ const ProcurementSystem = (props: any) => {
       });
   };
 
+  const getApproverConfig = async () => {
+    await SPServices.SPReadItems({
+      Listname: "ApproverConfig",
+      Select: "*,Approver/Title",
+      Expand: "Approver",
+      Filter: [
+        {
+          FilterKey: "Approver/EMail",
+          Operator: "eq",
+          FilterValue: loggedInUserEmail,
+        },
+      ],
+    })
+      .then(async (res: any) => {
+        if (res && res.length > 0) {
+          setUserRole(res[0].Role);
+        }
+        await getProcurementData();
+        console.log("Approver config data", res);
+      })
+      .catch((err) => {
+        console.error("Error fetching approver config data", err);
+      });
+  };
+
+  const getCurrentUserDetails = async () => {
+    await sp.web
+      .ensureUser(loggedInUserEmail.toLowerCase())
+      .then(async (user: any) => {
+        setUserDetails({
+          text: user.data.Title,
+          secondaryText: user.data.Email,
+          id: user.data.Id,
+        });
+        await getApproverConfig();
+      });
+  };
+
   // Stepper func
   const customStepperFunction = () => {
     return (
@@ -436,8 +373,6 @@ const ProcurementSystem = (props: any) => {
     );
   };
 
-  // Vendor selection dialog state
-
   const toggleVendorSelection = (id: any) => {
     const updated = vendorsList.map((v) => {
       if (v.id === id) {
@@ -449,46 +384,10 @@ const ProcurementSystem = (props: any) => {
     setVendorsList(updated);
   };
 
-  const getApproverConfig = async () => {
-    await SPServices.SPReadItems({
-      Listname: "ApproverConfig",
-      Select: "*,Approver/Title",
-      Expand: "Approver",
-      Filter: [
-        {
-          FilterKey: "Approver/EMail",
-          Operator: "eq",
-          FilterValue: loggedInUserEmail,
-        },
-      ],
-    })
-      .then(async (res: any) => {
-        if (res && res.length > 0) {
-          setUserRole(res[0].Role);
-        }
-        await getProcurementData();
-        console.log("Approver config data", res);
-      })
-      .catch((err) => {
-        console.error("Error fetching approver config data", err);
-      });
-  };
-
-  const getCurrentUserDetails = async () => {
-    await sp.web
-      .ensureUser(loggedInUserEmail.toLowerCase())
-      .then(async (user: any) => {
-        setUserDetails({
-          text: user.data.Title,
-          secondaryText: user.data.Email,
-          id: user.data.Id,
-        });
-        await getApproverConfig();
-      });
-  };
   useEffect(() => {
     if (loggedInUserEmail) void getCurrentUserDetails();
   }, []);
+
   return (
     <div className={procurementSysStyles.mainBodyLayout}>
       {customStepperFunction()}
@@ -502,6 +401,7 @@ const ProcurementSystem = (props: any) => {
       "Vendor Comparison" ? (
         <VendorComparison
           data={formData.vendorComparison}
+          activeTab={formData.ActiveTab}
           onDataChange={setFormData}
         />
       ) : (
@@ -583,7 +483,9 @@ const ProcurementSystem = (props: any) => {
             icon="pi pi-send"
             className="p-button-success"
             onClick={async () => {
-              await addSelectedVendor();
+              if (vendorsList.filter((v) => v.isSelected).length > 0) {
+                await addSelectedVendor();
+              }
             }}
           />
         </div>
@@ -648,7 +550,13 @@ const ProcurementSystem = (props: any) => {
             icon="pi pi-check"
             className="p-button-success"
             onClick={async () => {
-              await addUserSelectedVendor();
+              if (
+                formData.vendorComparison.vendors?.filter(
+                  (v: any) => v.selected,
+                ).length > 0
+              ) {
+                await addUserSelectedVendor();
+              }
             }}
           />
         ) : formData.ActiveTab === 3 &&
@@ -660,7 +568,9 @@ const ProcurementSystem = (props: any) => {
               icon="pi pi-check"
               className="p-button-success"
               onClick={async () => {
-                await approveRejectComments("Approved");
+                if (formData.approval.comments.trim()) {
+                  await approveRejectComments("Approved");
+                }
                 // await addUserSelectedVendor();
               }}
             />
@@ -669,7 +579,9 @@ const ProcurementSystem = (props: any) => {
               icon="pi pi-check"
               className="p-button-success"
               onClick={async () => {
-                await approveRejectComments("Rejected");
+                if (formData.approval.comments.trim()) {
+                  await approveRejectComments("Rejected");
+                }
                 // await addUserSelectedVendor();
               }}
             />
