@@ -3,9 +3,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import basicInfoStyles from "../BasicInformation/BasicInformation.module.scss";
-import { 
+import {
   // useEffect,
-   useState } from "react";
+  useState,
+} from "react";
+import * as moment from "moment";
 // import { getBasicInfoAI } from "../../../../../services/aiService";
 
 const BasicInformation = (props: { data: any }): JSX.Element => {
@@ -14,7 +16,9 @@ const BasicInformation = (props: { data: any }): JSX.Element => {
   const [aiOverview, setAiOverview] = useState<string>(
     "Analyzing request with AI...",
   );
-setAiOverview("")
+  React.useEffect(() => {
+    setAiOverview("");
+  }, []);
   // useEffect(() => {
   //   const loadAI = async (): Promise<void> => {
   //     const response = await getBasicInfoAI(data);
@@ -62,7 +66,9 @@ setAiOverview("")
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Required Date</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {data?.requiredDate}
+                {data?.requiredDate
+                  ? moment(data?.requiredDate).format("DD/MM/YYYY")
+                  : " - "}
               </p>
             </div>
             <div className={basicInfoStyles.itemCon}>
@@ -116,7 +122,9 @@ setAiOverview("")
             <div className={basicInfoStyles.itemCon}>
               <p className={basicInfoStyles.itemLabelCon}>Required Date</p>
               <p className={basicInfoStyles.itemValueCon}>
-                {data?.requesterRequiredDate}
+                {data?.requesterRequiredDate
+                  ? moment(data?.requesterRequiredDate).format("DD/MM/YYYY")
+                  : " - "}
               </p>
             </div>
           </div>
