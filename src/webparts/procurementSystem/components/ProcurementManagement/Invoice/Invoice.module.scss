@@ -1,175 +1,381 @@
+/* ===== Outer Layout ===== */
 .wrapper {
-  background: linear-gradient(135deg, #eaffea, #f6fff6);
-  padding: 24px;
-  font-family: "Segoe UI", sans-serif;
-  .title {
-    margin: 0;
-    margin-top: 10px;
-    color: var(--themeColorDark);
-    font-weight: 500;
-    font-size: var(--fontSizeMedium);
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
-.header h2 {
-  color: #0aa83f;
-  margin-bottom: 16px;
+/* ===== Validation Status Banner ===== */
+.validationBanner {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #eaecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
+.bannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.bannerIconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e8f5ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.bannerTitle {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--themeColorDark, #28a745);
+}
+
+.bannerSub {
+  margin: 0;
+  font-size: 12px;
+  color: #a0aab4;
+}
+
+.validatedBadge {
+  background: #e8f5ec;
+  color: var(--themeColorDark, #28a745);
+  border: 1px solid #c3e6cb;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ===== Two-column layout ===== */
 .mainGrid {
   display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 20px;
-  //left content styles start here...
-  .poCard {
-    background: #ecfbe8;
-    border-radius: 16px;
-    padding: 20px;
-    margin-top: 15px;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    .poTop {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      .poContentCon {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        .label {
-          font-size: var(--fontSizeMedium);
-          color: #8a8a8a;
-        }
-        .value {
-          color: #0a9b2f;
-        }
-      }
-    }
-    //vendor details styles starts here...
-    .vendorDetails {
-      background-color: #f4fdf2;
-      padding: 10px;
-      border-radius: 5px;
-      .subtitle {
-        margin: 0;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        // color: #a2a8c1;
-        color: #162150;
-        font-weight: 600;
-        text-decoration: underline;
-        font-size: var(--fontSizeMedium);
-      }
-      .subTitleCon {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 20px;
-        .itemCon {
-          .itemLabelCon {
-            margin: 0;
-            // color: var(--lightGrey);
-            color: #7c7c7c;
-            font-weight: 500;
-            font-size: var(--fontSizeMedium);
-          }
-          .itemValueCon {
-            margin: 0;
-            font-size: var(--fontSizeMedium);
-          }
-        }
-      }
-    }
-  }
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+  align-items: start;
 }
 
+/* ===== Invoice Validation Card (left) ===== */
 .invoiceCard {
-  background: #ffffffcc;
-  border-radius: 16px;
-  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #eaecef;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+.invoiceCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f0f2f4;
+}
+
+.invoiceCardHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.invoiceCardIconWrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #f0f4f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: #5a6a72;
+}
+
+.invoiceCardTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3c4a58;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.invoiceCardSubInfo {
+  font-size: 12px;
+  color: #a0aab4;
+}
+
+/* Invoice Number + Date row */
 .invoiceTop {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 16px;
+  align-items: flex-end;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f2f4;
 }
 
-.label {
-  font-size: 12px;
-  color: #8b8b8b;
+.invoiceNumberBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.invoiceNo {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0aa83f;
+.invoiceDateBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
 }
 
-.dateBlock strong {
-  color: #0aa83f;
+.fieldLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a0aab4;
+  margin: 0;
 }
 
-.detailsBox {
-  background: #f9fff9;
-  padding: 16px;
-  border-radius: 12px;
+.invoiceNumber {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--themeColorDark, #28a745);
+  margin: 0;
 }
 
-.detailsTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: #7c7cc4;
-  margin-bottom: 12px;
+.invoiceDate {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a2230;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* Invoice Details subsection */
+.invoiceDetails {
+  padding: 14px 20px 16px;
+  border-bottom: 1px solid #f0f2f4;
+}
+
+.sectionSubLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a0aab4;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #c3e6cb;
+    display: inline-block;
+  }
 }
 
 .detailsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px 20px;
+}
+
+.itemCon {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.itemLabelCon {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a0aab4;
+  margin: 0;
+}
+
+.itemValueCon {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2230;
+  margin: 0;
+}
+
+.itemValueRed {
+  color: #e53e3e;
+  font-weight: 700;
+}
+
+.itemValueGreen {
+  color: var(--themeColorDark, #28a745);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.itemValueBlue {
+  color: #3182ce;
+  font-weight: 700;
+}
+
+.itemValueOrange {
+  color: #e67e22;
+  font-weight: 700;
+}
+
+/* Payment Status row */
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 20px;
+  background: #fafbfc;
+}
+
+.statusPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6a737d;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e67e22;
+}
+
+.statusDotGreen {
+  background: var(--themeColorDark, #28a745);
+}
+
+.statusPendingLabel {
+  font-weight: 700;
+  color: #e67e22;
+}
+
+.statusApprovedLabel {
+  font-weight: 700;
+  color: var(--themeColorDark, #28a745);
+}
+
+.statusSep {
+  color: #e2e8f0;
+  font-size: 16px;
+}
+
+.statusDueBadge {
+  margin-left: auto;
+  font-size: 12px;
+  color: #a0aab4;
+}
+
+/* ===== Right Column ===== */
+.rightCol {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-.detailsGrid p {
-  margin: 4px 0 0;
-  font-size: 13px;
+/* ===== Related Documents Card ===== */
+.relatedDocsCard {
+  background: #ffffff;
+  border: 1px solid #eaecef;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.actionCard {
-  border-radius: 16px;
-  padding: 20px;
-  background-color: #edfce9;
-  margin-top: 15px;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+.relatedDocsHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0f2f4;
+  background: #fafbfc;
 }
 
-.primaryBtn {
-  width: 100%;
-  background: #0aa83f;
-  color: #fff;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-bottom: 20px;
+.relatedDocsIconWrap {
+  font-size: 16px;
+  color: var(--themeColorDark, #28a745);
 }
 
-.relatedBox h3 {
-  font-size: var(--fontSizeMedium);
-  color: #0aa83f;
-  margin-bottom: 10px;
-  margin-top: 0px;
+.relatedDocsTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6a737d;
+}
+
+.relatedDocsList {
+  display: flex;
+  flex-direction: column;
 }
 
 .docItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: #f2fff2;
-  padding: 10px 12px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  font-size: 13px;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid #f6f7f8;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: #fafbfc; }
 }
 
-.icon {
-  color: #0aa83f;
+.docItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.docIconWrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.docIconWrapGreen { background: #e8f5ec; }
+.docIconWrapOrange { background: #fff3e0; }
+.docIconWrapBlue { background: #e8f0fe; }
+
+.docLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2230;
+  margin: 0;
+}
+
+.docArrow {
+  font-size: 12px;
+  color: #c0ccd8;
 }

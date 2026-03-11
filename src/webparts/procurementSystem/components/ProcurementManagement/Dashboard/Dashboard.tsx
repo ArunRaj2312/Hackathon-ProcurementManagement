@@ -8,19 +8,18 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import styles from "./Dashaboard.module.scss";
 import SPServices from "../../../../../CommonServices/SPServices";
 import { Calendar } from "primereact/calendar";
-import Loader from "../../Loader/Loader";
 import MainLoader from "../../Loader/MainLoader";
 import * as moment from "moment";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const toast = useRef<Toast | null>(null);
 
-  let newObj = {
+  const newObj = {
     id: null,
     prId: "",
     item: "",
@@ -30,19 +29,15 @@ const Dashboard: React.FC = () => {
     date: "",
     justification: "",
   };
+
   const [visible, setVisible] = useState(false);
   const [selectedRow, setSelectedRow] = useState<any>({ ...newObj });
   const [productOptions, setProductOptions] = useState<any[]>([]);
-  const [applicationLoader, setapplicationLoader] = useState<boolean>(true);
   const [data, setData] = useState<any[]>([]);
   const [isLoader, setIsLoader] = useState(false);
 
   const onChangeHandler = (key: string, value: string) => {
-    let tempDialog = {
-      ...selectedRow,
-    };
-    tempDialog[key] = value;
-    setSelectedRow({ ...tempDialog });
+    setSelectedRow((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const getProcurementData = async () => {
@@ -52,16 +47,16 @@ const Dashboard: React.FC = () => {
       Expand: "Requestor,Item",
     })
       .then(async (res: any) => {
-        // Map the response to formData structure if needed
         const mappedData = res.map((item: any) => ({
           id: item.ID,
           prId: item.Item?.PRId || "",
-          item: item.Item ? item.Item.Title : "", // assuming Item is a lookup
+          item: item.Item ? item.Item.Title : "",
           quantity: item.Quantity,
           price: item.Price,
           total: item.Total,
           date: item.Date,
           justification: item.Justification,
+          status: item.Status || "Active",
         }));
         setData(mappedData);
         setIsLoader(false);
@@ -73,7 +68,6 @@ const Dashboard: React.FC = () => {
 
   const loadProducts = async () => {
     try {
-      // fetch ID and Title (and price if available)
       const items: any[] = await SPServices.SPReadItems({
         Listname: "ProductDetails",
         Select: "ID,Title,PRId",
@@ -92,46 +86,30 @@ const Dashboard: React.FC = () => {
 
   const onSubmit = async () => {
     let errorMsg = "";
-
-    if (!selectedRow.item) {
-      errorMsg = "Item is required.";
-    } else if (!selectedRow.quantity) {
-      errorMsg = "Quantity is required.";
-    } else if (
+    if (!selectedRow.item) errorMsg = "Item is required.";
+    else if (!selectedRow.quantity) errorMsg = "Quantity is required.";
+    else if (
       isNaN(Number(selectedRow.quantity)) ||
       Number(selectedRow.quantity) <= 0
-    ) {
-      errorMsg = "Quantity must be a number greater than 0.";
-    } else if (!selectedRow.price) {
-      errorMsg = "Estimated unit price is required.";
-    } else if (
-      isNaN(Number(selectedRow.price)) ||
-      Number(selectedRow.price) <= 0
-    ) {
-      errorMsg = "Estimated unit price must be a number greater than 0.";
-    } else if (!selectedRow.total) {
-      errorMsg = "Total estimated is required.";
-    } else if (
-      isNaN(Number(selectedRow.total)) ||
-      Number(selectedRow.total) <= 0
-    ) {
-      errorMsg = "Total estimated must be a number greater than 0.";
-    } else if (!selectedRow.date) {
-      errorMsg = "Required date is required.";
-    } else if (!selectedRow.justification) {
+    )
+      errorMsg = "Quantity must be a positive number.";
+    else if (!selectedRow.price) errorMsg = "Estimated unit price is required.";
+    else if (isNaN(Number(selectedRow.price)) || Number(selectedRow.price) <= 0)
+      errorMsg = "Estimated unit price must be a positive number.";
+    else if (!selectedRow.total) errorMsg = "Total estimated is required.";
+    else if (isNaN(Number(selectedRow.total)) || Number(selectedRow.total) <= 0)
+      errorMsg = "Total estimated must be a positive number.";
+    else if (!selectedRow.date) errorMsg = "Required date is required.";
+    else if (!selectedRow.justification)
       errorMsg = "Justification is required.";
-    }
 
     if (errorMsg) {
-      if (toast.current) {
-        toast.current.show({
-          severity: "error",
-          summary: "Validation Error",
-          detail: errorMsg,
-          life: 4000,
-        });
-      }
-
+      toast.current?.show({
+        severity: "error",
+        summary: "Validation Error",
+        detail: errorMsg,
+        life: 4000,
+      });
       return;
     }
 
@@ -145,16 +123,13 @@ const Dashboard: React.FC = () => {
         Justification: selectedRow.justification,
         ActiveTab: "1",
       };
-
-      if (selectedRow && selectedRow.id) {
-        const id = selectedRow.id;
+      if (selectedRow?.id) {
         await SPServices.SPUpdateItem({
           Listname: "ProcurementDetails",
-          ID: id,
+          ID: selectedRow.id,
           RequestJSON: payload,
         });
       } else {
-        // Add new item
         await SPServices.SPAddItem({
           Listname: "ProcurementDetails",
           RequestJSON: payload,
@@ -168,77 +143,230 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const actionTemplate = (rowData: any) => (
-    <div className="editIcon">
+  const mandatorySymbol = () => <span style={{ color: "red" }}>*</span>;
+
+  useEffect(() => {
+    setIsLoader(true);
+    void loadProducts();
+  }, []);
+
+  // ====== Computed stats ======
+  const totalPRs = data.length;
+  const totalItems = data.reduce(
+    (acc, row) => acc + (Number(row.quantity) || 0),
+    0,
+  );
+  const totalEstimated = data.reduce(
+    (acc, row) => acc + (Number(String(row.total).replace(/[₹,]/g, "")) || 0),
+    0,
+  );
+  const upcomingDue = data.filter((row) => {
+    if (!row.date) return false;
+    const d = new Date(row.date);
+    const now = new Date();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return d >= now && d <= endOfMonth;
+  }).length;
+
+  // ====== Column body templates ======
+  const prIdTemplate = (rowData: any) => (
+    <span
+      className={styles.prIdCell}
+      onClick={() =>
+        navigate("/procurementmanagement", {
+          state: { selectedRow: rowData, id: rowData.id },
+        })
+      }
+    >
+      {rowData.prId || "—"}
+    </span>
+  );
+
+  const itemTemplate = (rowData: any) => (
+    <div className={styles.itemCell}>
       <i
-        className="pi pi-pencil"
-        onClick={() => {
-          navigate("/procurementmanagement", {
-            state: { selectedRow: rowData, id: rowData.id },
-          });
-        }}
+        className={`pi ${rowData.item?.toLowerCase().includes("laptop") ? "pi-desktop" : "pi-mobile"} ${styles.itemIcon}`}
       />
+      {rowData.item || "—"}
     </div>
   );
 
-  const mandatorySymbol = (): JSX.Element => {
-    return <span style={{ color: "red" }}>*</span>;
+  const qtyTemplate = (rowData: any) => (
+    <span className={styles.qtyChip}>{rowData.quantity || "0"}</span>
+  );
+
+  const priceTemplate = (rowData: any) => (
+    <span>₹{Number(rowData.price).toLocaleString("en-IN") || "—"}</span>
+  );
+
+  const totalTemplate = (rowData: any) => (
+    <span style={{ fontWeight: 600 }}>
+      ₹{Number(rowData.total).toLocaleString("en-IN") || "—"}
+    </span>
+  );
+
+  const statusTemplate = (rowData: any) => {
+    const s = (rowData.status || "Active").toLowerCase();
+    const cls =
+      s === "active"
+        ? styles.statusActive
+        : s === "pending"
+          ? styles.statusPending
+          : s === "review"
+            ? styles.statusReview
+            : styles.statusDefault;
+    return (
+      <span className={`${styles.statusBadge} ${cls}`}>
+        {rowData.status || "Active"}
+      </span>
+    );
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setapplicationLoader(false);
-      setIsLoader(true);
-      void loadProducts();
-    }, 3000);
-  }, []);
+  const dateTemplate = (rowData: any) => (
+    <div className={styles.dateCell}>
+      <i className={`pi pi-calendar ${styles.dateIcon}`} />
+      {rowData.date ? moment(rowData.date).format("DD MMM YYYY") : "—"}
+    </div>
+  );
 
-  return isLoader ? (
-    <MainLoader />
-  ) : (
+  const actionTemplate = (rowData: any) => (
+    <div
+      className={styles.actionCell}
+      onClick={() =>
+        navigate("/procurementmanagement", {
+          state: { selectedRow: rowData, id: rowData.id },
+        })
+      }
+    >
+      <i className="pi pi-pencil" />
+    </div>
+  );
+
+  return (
     <>
-      {applicationLoader ? (
-        <Loader />
+      {isLoader ? (
+        <MainLoader />
       ) : (
         <div className={styles.procurementWrapper}>
           <Toast ref={toast} />
-          {/* Header */}
+
+          {/* ===== PAGE HEADER ===== */}
           <div className={styles.pageHeader}>
-            <h3>Procurement System</h3>
-            <Button
-              label="Add New"
-              icon="pi pi-plus"
-              className="p-button-success"
-              onClick={() => {
-                setSelectedRow(newObj);
-                setVisible(true);
-              }}
-            />
+            <div className={styles.pageHeaderLeft}>
+              <h3>Procurement System</h3>
+              <p>Manage all purchase requisitions</p>
+            </div>
+            <div className={styles.pageHeaderRight}>
+              <Button
+                label="Add New"
+                icon="pi pi-plus"
+                className="p-button-success"
+                style={{ borderRadius: 10, padding: "8px 16px", fontSize: 13 }}
+                onClick={() => {
+                  setSelectedRow(newObj);
+                  setVisible(true);
+                }}
+              />
+            </div>
           </div>
 
-          {/* DataTable */}
-          <DataTable
-            value={data}
-            paginator
-            rows={12}
-            stripedRows
-            responsiveLayout="scroll"
-          >
-            <Column field="prId" header="PR ID" />
-            <Column field="item" header="Item" />
-            <Column field="quantity" header="Quantity" />
-            <Column field="price" header="Estimated Unit Price" />
-            <Column field="total" header="Total Estimated" />
-            <Column
-              field="date"
-              header="Required Date"
-              body={(rowData) =>
-                rowData.date ? moment(rowData.date).format("DD/MM/YYYY") : " - "
-              }
-            />
-            <Column body={actionTemplate} style={{ width: "4rem" }} />
-          </DataTable>
+          {/* ===== STAT CARDS ===== */}
+          <div className={styles.statCardsGrid}>
+            <div className={styles.statCard}>
+              <div
+                className={`${styles.statCardIconWrap} ${styles.statIconGreen}`}
+              >
+                📋
+              </div>
+              <div className={styles.statCardBody}>
+                <p className={styles.statCardLabel}>Total PRs</p>
+                <p className={styles.statCardValue}>{totalPRs}</p>
+                <p className={styles.statCardSub}>This period</p>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div
+                className={`${styles.statCardIconWrap} ${styles.statIconBlue}`}
+              >
+                💻
+              </div>
+              <div className={styles.statCardBody}>
+                <p className={styles.statCardLabel}>Total Items</p>
+                <p className={styles.statCardValue}>{totalItems}</p>
+                <p className={styles.statCardSub}>Units ordered</p>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div
+                className={`${styles.statCardIconWrap} ${styles.statIconOrange}`}
+              >
+                💰
+              </div>
+              <div className={styles.statCardBody}>
+                <p className={styles.statCardLabel}>Total Estimated</p>
+                <p className={styles.statCardValue} style={{ fontSize: 20 }}>
+                  ₹{totalEstimated.toLocaleString("en-IN")}
+                </p>
+                <p className={styles.statCardSub}>Combined value</p>
+              </div>
+            </div>
+            <div className={styles.statCard}>
+              <div
+                className={`${styles.statCardIconWrap} ${styles.statIconRed}`}
+              >
+                📅
+              </div>
+              <div className={styles.statCardBody}>
+                <p className={styles.statCardLabel}>Upcoming Due</p>
+                <p className={styles.statCardValue}>{upcomingDue}</p>
+                <p className={styles.statCardSub}>In this month</p>
+              </div>
+            </div>
+          </div>
 
+          {/* ===== TABLE CARD ===== */}
+          <div className={styles.tableContainer}>
+            <div className={styles.tableTopRow}>
+              <p className={styles.tableTitle}>
+                Purchase Requisitions
+                <span className={styles.recordsBadge}>
+                  {data.length} records
+                </span>
+              </p>
+            </div>
+            <DataTable
+              value={data}
+              responsiveLayout="scroll"
+              className="p-datatable-sm"
+              paginator
+              rows={10}
+              paginatorTemplate="PrevPageLink PageLinks NextPageLink"
+              paginatorClassName="custom-paginator"
+            >
+              <Column field="prId" header="PR ID" body={prIdTemplate} />
+              <Column field="item" header="Item" body={itemTemplate} />
+              <Column field="quantity" header="Quantity" body={qtyTemplate} />
+              <Column
+                field="price"
+                header="Est. Unit Price"
+                body={priceTemplate}
+              />
+              <Column
+                field="total"
+                header="Total Estimated"
+                body={totalTemplate}
+              />
+              <Column field="status" header="Status" body={statusTemplate} />
+              <Column field="date" header="Required Date" body={dateTemplate} />
+              <Column
+                header="Actions"
+                body={actionTemplate}
+                style={{ width: "5rem" }}
+              />
+            </DataTable>
+          </div>
+
+          {/* ===== ADD/EDIT DIALOG ===== */}
           <Dialog
             header="Purchase Request"
             visible={visible}
@@ -252,6 +380,11 @@ const Dashboard: React.FC = () => {
                   label="Close"
                   icon="pi pi-times"
                   className="p-button-secondary"
+                  style={{
+                    borderRadius: 10,
+                    padding: "8px 16px",
+                    fontSize: 13,
+                  }}
                   onClick={() => setVisible(false)}
                 />
                 <Button
@@ -259,6 +392,11 @@ const Dashboard: React.FC = () => {
                   icon="pi pi-check"
                   className="p-button-success"
                   onClick={onSubmit}
+                  style={{
+                    borderRadius: 10,
+                    padding: "8px 16px",
+                    fontSize: 13,
+                  }}
                 />
               </div>
             }
@@ -274,15 +412,7 @@ const Dashboard: React.FC = () => {
                     optionValue="value"
                     placeholder="Select item"
                     style={{ width: "100%" }}
-                    onChange={(e: any) => {
-                      //   const id = e.value;
-                      //   const selected = productOptions.find((o) => o.value === id);
-                      //   onChangeHandler("itemId", id);
-                      onChangeHandler("item", e.value);
-                      // optionally auto-fill price if product contains it
-                      //   if (selected && selected.price)
-                      //     onChangeHandler("price", selected.price.toString());
-                    }}
+                    onChange={(e: any) => onChangeHandler("item", e.value)}
                     filter
                     showClear
                   />
@@ -296,15 +426,7 @@ const Dashboard: React.FC = () => {
                     optionValue="value"
                     placeholder="Select item"
                     style={{ width: "100%" }}
-                    onChange={(e: any) => {
-                      //   const id = e.value;
-                      //   const selected = productOptions.find((o) => o.value === id);
-                      //   onChangeHandler("itemId", id);
-                      onChangeHandler("item", e.value);
-                      // optionally auto-fill price if product contains it
-                      //   if (selected && selected.price)
-                      //     onChangeHandler("price", selected.price.toString());
-                    }}
+                    onChange={(e: any) => onChangeHandler("item", e.value)}
                     filter
                     showClear
                     disabled
@@ -314,67 +436,63 @@ const Dashboard: React.FC = () => {
                   <label>Quantity {mandatorySymbol()}</label>
                   <InputText
                     value={selectedRow.quantity}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    style={{ width: "100%" }}
+                    onChange={(e: any) =>
                       onChangeHandler("quantity", e.target.value)
                     }
-                    style={{ width: "100%" }}
                   />
                 </div>
-
                 <div className={styles.fields}>
-                  <label>Estimated unit price {mandatorySymbol()}</label>
+                  <label>Estimated Unit Price {mandatorySymbol()}</label>
                   <InputText
                     value={
                       selectedRow.price
-                        ? selectedRow.price.replace("₹", "")
+                        ? String(selectedRow.price).replace("₹", "")
                         : ""
                     }
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    style={{ width: "100%" }}
+                    onChange={(e: any) =>
                       onChangeHandler("price", e.target.value)
                     }
-                    style={{ width: "100%" }}
                   />
                 </div>
-
                 <div className={styles.fields}>
-                  <label>Total estimated {mandatorySymbol()}</label>
+                  <label>Total Estimated {mandatorySymbol()}</label>
                   <InputText
                     value={
                       selectedRow.total
-                        ? selectedRow.total.replace("₹", "")
+                        ? String(selectedRow.total).replace("₹", "")
                         : ""
                     }
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    style={{ width: "100%" }}
+                    onChange={(e: any) =>
                       onChangeHandler("total", e.target.value)
                     }
-                    style={{ width: "100%" }}
                   />
                 </div>
-
                 <div className={styles.fields}>
-                  <label>Required date {mandatorySymbol()}</label>
+                  <label>Required Date {mandatorySymbol()}</label>
                   <Calendar
                     value={selectedRow.date ? new Date(selectedRow.date) : null}
+                    dateFormat="dd/mm/yy"
+                    style={{ width: "100%" }}
                     onChange={(e: any) =>
                       onChangeHandler(
                         "date",
                         e.value?.toLocaleDateString() || "",
                       )
                     }
-                    dateFormat="dd/mm/yy"
-                    style={{ width: "100%" }}
                   />
                 </div>
-
-                <div className={styles.fields}>
+                <div className={styles.fields} style={{ gridColumn: "span 2" }}>
                   <label>Justification {mandatorySymbol()}</label>
                   <InputTextarea
                     rows={3}
                     value={selectedRow.justification}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    style={{ width: "100%" }}
+                    onChange={(e: any) =>
                       onChangeHandler("justification", e.target.value)
                     }
-                    style={{ width: "100%" }}
                   />
                 </div>
               </div>
