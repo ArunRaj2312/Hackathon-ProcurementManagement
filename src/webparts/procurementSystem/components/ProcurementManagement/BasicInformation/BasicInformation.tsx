@@ -3,12 +3,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import basicInfoStyles from "../BasicInformation/BasicInformation.module.scss";
-import {
-  // useEffect,
-  useState,
-} from "react";
+import { useState } from "react";
 import * as moment from "moment";
-// import { getBasicInfoAI } from "../../../../../services/aiService";
 
 const BasicInformation = (props: { data: any }): JSX.Element => {
   const data = props.data || {};
@@ -19,164 +15,149 @@ const BasicInformation = (props: { data: any }): JSX.Element => {
   React.useEffect(() => {
     setAiOverview("");
   }, []);
-  // useEffect(() => {
-  //   const loadAI = async (): Promise<void> => {
-  //     const response = await getBasicInfoAI(data);
 
-  //     setAiOverview(response);
-  //   };
-
-  //   if (data) {
-  //     void loadAI();
-  //   }
-  // }, [data]);
   return (
-    <>
-      <div className={basicInfoStyles.layoutCon}>
-        <div className={basicInfoStyles.basicInfoMainCon}>
-          {/* basic details */}
-          <p className={basicInfoStyles.subtitle}>Basic Details</p>
-          <div className={basicInfoStyles.subTitleCon}>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>PR ID</p>
-              <p className={basicInfoStyles.itemValueCon}>{data?.prId}</p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Item</p>
-              <p className={basicInfoStyles.itemValueCon}>{data?.item}</p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Quantity</p>
-              <p className={basicInfoStyles.itemValueCon}>{data?.quantity}</p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>
-                Estimated Unit Price
-              </p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {data?.estimatedUnitPrice}
-              </p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Total Estimated</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {data?.totalEstimated}
-              </p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Required Date</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {data?.requiredDate
-                  ? moment(data?.requiredDate).format("DD/MM/YYYY")
-                  : " - "}
-              </p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Justification</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {data?.justification}
-              </p>
-            </div>
-          </div>
-          {/* documents */}
-          {/* <p className={basicInfoStyles.subtitle}>Documents</p>
-          <div className={basicInfoStyles.subTitleCon}>
-            <div className={basicInfoStyles.fileMainCon}>
-              <div className={basicInfoStyles.fileCon}>
-                <p className={basicInfoStyles.fileLabel}>
-                  <i className={`${basicInfoStyles.fileIcon} pi pi-file`}></i>
-                  Resume.pdf
-                </p>
-              </div>
-              <div className={basicInfoStyles.fileCon}>
-                <p className={basicInfoStyles.fileLabel}>
-                  <i className={`${basicInfoStyles.fileIcon} pi pi-file`}></i>
-                  Aadhaar.pdf
-                </p>
-              </div>
-            </div>
-          </div> */}
-          {/* requester details */}
-          <p className={basicInfoStyles.subtitle}>Requester Details</p>
-          <div className={basicInfoStyles.subTitleCon}>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Requested by</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {data?.requestedBy}
-              </p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Employee id</p>
-              <p className={basicInfoStyles.itemValueCon}>{data?.employeeId}</p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Designation</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {data?.designation}
-              </p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Location</p>
-              <p className={basicInfoStyles.itemValueCon}>{data?.location}</p>
-            </div>
-            <div className={basicInfoStyles.itemCon}>
-              <p className={basicInfoStyles.itemLabelCon}>Required Date</p>
-              <p className={basicInfoStyles.itemValueCon}>
-                {data?.requesterRequiredDate
-                  ? moment(data?.requesterRequiredDate).format("DD/MM/YYYY")
-                  : " - "}
-              </p>
-            </div>
-          </div>
+    <div className={basicInfoStyles.layoutCon}>
+      {/* ===== TOP SUMMARY CARDS ===== */}
+      <div className={basicInfoStyles.summaryCards}>
+        {/* Item Card */}
+        <div className={basicInfoStyles.summaryCard}>
+          <i className={`pi pi-desktop ${basicInfoStyles.summaryCardIcon}`} />
+          <p className={basicInfoStyles.summaryCardLabel}>Item</p>
+          <p className={basicInfoStyles.summaryCardValue} style={{ fontSize: 22, color: "var(--themeColorDark, #28a745)" }}>
+            {data?.item || "—"}
+          </p>
+          <p className={basicInfoStyles.summaryCardItem}>{data?.prId || ""}</p>
         </div>
-        {/* AI overview */}
-        {/* <div className={basicInfoStyles.aiOverviewMainCon}>
-          <div className={basicInfoStyles.aiOverviewLabelCon}>
-            <p className={basicInfoStyles.labelStyle}>
-              <i
-                className={`${basicInfoStyles.aiIconStyle} pi pi-sparkles`}
-              ></i>
-              AI Overview
-            </p>
-          </div>
-          <div className={basicInfoStyles.aiContentCon}>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.
-            </p>
-          </div>
-        </div> */}
-        {/* AI overview */}
-        <div className={basicInfoStyles.aiOverviewMainCon}>
-          <div className={basicInfoStyles.aiOverviewLabelCon}>
-            <p className={basicInfoStyles.labelStyle}>
-              <i
-                className={`${basicInfoStyles.aiIconStyle} pi pi-sparkles`}
-              ></i>
-              AI Overview
-            </p>
-          </div>
 
-          <div className={basicInfoStyles.aiContentCon}>
-            {aiOverview.split("\n").map((line, index) => (
-              <p key={index}>{line}</p>
-            ))}
+        {/* Quantity Card */}
+        <div className={basicInfoStyles.summaryCard}>
+          <p className={basicInfoStyles.summaryCardLabel}>Quantity</p>
+          <p className={basicInfoStyles.summaryCardValue}>{data?.quantity || "—"}</p>
+          <p className={basicInfoStyles.summaryCardSub}>units ordered</p>
+        </div>
+
+        {/* Total Estimated Card */}
+        <div className={basicInfoStyles.summaryCard}>
+          <p className={basicInfoStyles.summaryCardLabel}>Total Estimated</p>
+          <p className={`${basicInfoStyles.summaryCardValue} ${basicInfoStyles.summaryCardValueGreen}`}>
+            {data?.totalEstimated ? `₹${Number(data.totalEstimated).toLocaleString("en-IN")}` : "—"}
+          </p>
+          <p className={basicInfoStyles.summaryCardSub}>
+            {data?.estimatedUnitPrice ? `@ ₹${data.estimatedUnitPrice} per unit` : ""}
+          </p>
+        </div>
+      </div>
+
+      {/* ===== BASIC DETAILS SECTION ===== */}
+      <div className={basicInfoStyles.sectionCard}>
+        <div className={basicInfoStyles.sectionHeader}>
+          <div className={basicInfoStyles.sectionHeaderLeft}>
+            <div className={basicInfoStyles.sectionIcon}>
+              <i className="pi pi-file" />
+            </div>
+            <p className={basicInfoStyles.sectionTitle}>Basic Details</p>
+          </div>
+          <p className={basicInfoStyles.sectionFieldCount}>6 fields</p>
+        </div>
+        <div className={basicInfoStyles.sectionBody}>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>PR ID</p>
+            <p className={`${basicInfoStyles.fieldValue} ${basicInfoStyles.fieldValueGreen}`}>{data?.prId || "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Item</p>
+            <p className={basicInfoStyles.fieldValue}>{data?.item || "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Quantity</p>
+            <p className={basicInfoStyles.fieldValue}>{data?.quantity ? `${data.quantity} units` : "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Unit Price</p>
+            <p className={basicInfoStyles.fieldValue}>{data?.estimatedUnitPrice ? `₹${Number(data.estimatedUnitPrice).toLocaleString("en-IN")}` : "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Total Estimated</p>
+            <p className={`${basicInfoStyles.fieldValue} ${basicInfoStyles.fieldValueGreen}`}>
+              {data?.totalEstimated ? `₹${Number(data.totalEstimated).toLocaleString("en-IN")}` : "—"}
+            </p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Required Date</p>
+            <p className={basicInfoStyles.fieldValue}>
+              {data?.requiredDate ? moment(data.requiredDate).format("DD MMM YYYY") : "—"}
+            </p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Justification</p>
+            <p className={`${basicInfoStyles.fieldValue} ${basicInfoStyles.fieldValueItalic}`}>
+              {data?.justification || "—"}
+            </p>
           </div>
         </div>
       </div>
-    </>
+
+      {/* ===== REQUESTER DETAILS SECTION ===== */}
+      <div className={basicInfoStyles.sectionCard}>
+        <div className={basicInfoStyles.sectionHeader}>
+          <div className={basicInfoStyles.sectionHeaderLeft}>
+            <div className={basicInfoStyles.sectionIcon}>
+              <i className="pi pi-user" />
+            </div>
+            <p className={basicInfoStyles.sectionTitle}>Requester Details</p>
+          </div>
+          <p className={basicInfoStyles.sectionFieldCount}>5 fields</p>
+        </div>
+        <div className={basicInfoStyles.sectionBody}>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Requested By</p>
+            <p className={basicInfoStyles.fieldValue}>{data?.requestedBy || "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Employee ID</p>
+            <p className={basicInfoStyles.fieldValue}>{data?.employeeId || "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Designation</p>
+            <p className={basicInfoStyles.fieldValue}>{data?.designation || "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Location</p>
+            <p className={basicInfoStyles.fieldValue}>{data?.location || "—"}</p>
+          </div>
+          <div className={basicInfoStyles.fieldItem}>
+            <p className={basicInfoStyles.fieldLabel}>Request Date</p>
+            <p className={basicInfoStyles.fieldValue}>
+              {data?.requesterRequiredDate
+                ? moment(data.requesterRequiredDate).format("DD MMM YYYY")
+                : "—"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== AI OVERVIEW ===== */}
+      <div className={basicInfoStyles.aiOverviewMainCon}>
+        <div className={basicInfoStyles.aiOverviewLabelCon}>
+          <p className={basicInfoStyles.labelStyle}>
+            <i className={`${basicInfoStyles.aiIconStyle} pi pi-sparkles`} />
+            AI Overview
+          </p>
+        </div>
+        <div className={basicInfoStyles.aiContentCon}>
+          {aiOverview ? (
+            aiOverview.split("\n").map((line, index) => (
+              <p key={index}>{line}</p>
+            ))
+          ) : (
+            <p style={{ color: "#a0aab4", fontStyle: "italic" }}>
+              AI analysis will appear here once generated.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 export default BasicInformation;

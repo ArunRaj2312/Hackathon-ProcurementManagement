@@ -327,52 +327,6 @@ const ProcurementSystem = (props: any) => {
       });
   };
 
-  // Stepper func
-  const customStepperFunction = () => {
-    return (
-      <>
-        <div className={procurementSysStyles.customStepperNav}>
-          {stepperArr.map((item, index) => (
-            <div
-              className={procurementSysStyles.customStepperItem}
-              // onClick={() => {
-              //   setselectedStepperVersionId(item.id);
-              // }}
-            >
-              <div className={procurementSysStyles.stepperTitleContainer}>
-                <i
-                  className={`${item?.icon} ${
-                    item?.id <= selectedStepperVersionId
-                      ? procurementSysStyles.activeStepperIcon
-                      : procurementSysStyles.stepperIcon
-                  }`}
-                ></i>
-                <p
-                  className={
-                    item.id <= selectedStepperVersionId
-                      ? `${procurementSysStyles.stepperTitle} ${procurementSysStyles.activeStepperTitle}`
-                      : procurementSysStyles.stepperTitle
-                  }
-                >
-                  {item.title}
-                </p>
-              </div>
-              {index !== stepperArr.length - 1 && (
-                <span
-                  className={
-                    item.id <= selectedStepperVersionId
-                      ? `${procurementSysStyles.stepperSeperator} ${procurementSysStyles.activeStepperSeperator}`
-                      : procurementSysStyles.stepperSeperator
-                  }
-                ></span>
-              )}
-            </div>
-          ))}
-        </div>
-      </>
-    );
-  };
-
   const toggleVendorSelection = (id: any) => {
     const updated = vendorsList.map((v) => {
       if (v.id === id) {
@@ -388,48 +342,260 @@ const ProcurementSystem = (props: any) => {
     if (loggedInUserEmail) void getCurrentUserDetails();
   }, []);
 
+  // Stepper subtitle labels
+  const stepSubtitles: Record<number, string> = {
+    1: "PR details & requester",
+    2: "Evaluate suppliers",
+    3: "Manager sign-off",
+    4: "Generate PO",
+    5: "Payment & close",
+  };
+
   return (
     <div className={procurementSysStyles.mainBodyLayout}>
-      {customStepperFunction()}
-      {stepperArr?.find((e) => e?.id === selectedStepperVersionId)?.title ===
-      "Basic Information" ? (
-        <BasicInformation data={formData.basicInformation} />
-      ) : (
-        ""
-      )}
-      {stepperArr?.find((e) => e?.id === selectedStepperVersionId)?.title ===
-      "Vendor Comparison" ? (
-        <VendorComparison
-          data={formData.vendorComparison}
-          activeTab={formData.ActiveTab}
-          onDataChange={setFormData}
-        />
-      ) : (
-        ""
-      )}
-      {stepperArr?.find((e) => e?.id === selectedStepperVersionId)?.title ===
-      "Approval" ? (
-        <Approval
-          data={formData.approval}
-          userRole={userRole}
-          userDetails={userDetails}
-          onDataChange={setFormData}
-        />
-      ) : (
-        ""
-      )}
-      {stepperArr?.find((e) => e?.id === selectedStepperVersionId)?.title ===
-      "Purchase Order" ? (
-        <PurchaseOrder data={formData.purchaseOrder} />
-      ) : (
-        ""
-      )}
-      {stepperArr?.find((e) => e?.id === selectedStepperVersionId)?.title ===
-      "Invoice" ? (
-        <Invoice data={formData.invoice} />
-      ) : (
-        ""
-      )}
+      {/* LEFT SIDEBAR */}
+      <div className={procurementSysStyles.sidebar}>
+        <div className={procurementSysStyles.sidebarTop}>
+          <p className={procurementSysStyles.sidebarLabel}>Workflow Steps</p>
+          <div className={procurementSysStyles.stepList}>
+            {stepperArr.map((item) => {
+              const isActive = item.id === selectedStepperVersionId;
+              const isCompleted = item.id < selectedStepperVersionId;
+              const cls = [
+                procurementSysStyles.stepItem,
+                isActive ? procurementSysStyles.activeStep : "",
+                isCompleted ? procurementSysStyles.completedStep : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              return (
+                <div key={item.id} className={cls}>
+                  <div className={procurementSysStyles.stepBubble}>
+                    {isCompleted ? (
+                      <i className="pi pi-check" style={{ fontSize: 12 }} />
+                    ) : (
+                      item.id
+                    )}
+                  </div>
+                  <div className={procurementSysStyles.stepTextBlock}>
+                    <p className={procurementSysStyles.stepName}>
+                      {item.title}
+                    </p>
+                    <span className={procurementSysStyles.stepSubtitle}>
+                      {stepSubtitles[item.id]}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Bottom meta info */}
+        <div className={procurementSysStyles.sidebarMeta}>
+          <div className={procurementSysStyles.metaRow}>
+            <span>PR ID</span>
+            <span>{formData.basicInformation.prId || "—"}</span>
+          </div>
+          <div className={procurementSysStyles.metaRow}>
+            <span>Created</span>
+            <span>
+              {formData.basicInformation.requesterRequiredDate
+                ? new Date(
+                    formData.basicInformation.requesterRequiredDate,
+                  ).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })
+                : "—"}
+            </span>
+          </div>
+          <div className={procurementSysStyles.metaRow}>
+            <span>Step</span>
+            <span>{selectedStepperVersionId} of 5</span>
+          </div>
+          <div className={procurementSysStyles.metaRow}>
+            <span>Status</span>
+            <span className={procurementSysStyles.metaStatus}>Draft</span>
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT CONTENT PANEL */}
+      <div className={procurementSysStyles.contentPanel}>
+        {/* Page top bar */}
+        <div className={procurementSysStyles.pageTopBar}>
+          <div className={procurementSysStyles.pageTitleBlock}>
+            <h2>
+              {stepperArr.find((e) => e.id === selectedStepperVersionId)?.title}
+            </h2>
+            <p>
+              {selectedStepperVersionId === 1
+                ? "Fill in the requisition details to proceed to vendor comparison"
+                : selectedStepperVersionId === 2
+                  ? "Evaluate and select a vendor for this purchase request"
+                  : selectedStepperVersionId === 3
+                    ? "Awaiting manager approval for the selected vendor"
+                    : selectedStepperVersionId === 4
+                      ? "Generate and review the purchase order"
+                      : "Review and close the invoice for this order"}
+            </p>
+          </div>
+          <div className={procurementSysStyles.pageBadges}>
+            <span className={procurementSysStyles.badgeDraft}>DRAFT</span>
+            <span className={procurementSysStyles.badgePrId}>
+              {formData.basicInformation.prId || "PR — 001"}
+            </span>
+          </div>
+        </div>
+
+        {/* Scrollable step content */}
+        <div className={procurementSysStyles.stepContent}>
+          {selectedStepperVersionId === 1 && (
+            <BasicInformation data={formData.basicInformation} />
+          )}
+          {selectedStepperVersionId === 2 && (
+            <VendorComparison
+              data={formData.vendorComparison}
+              activeTab={formData.ActiveTab}
+              onDataChange={setFormData}
+            />
+          )}
+          {selectedStepperVersionId === 3 && (
+            <Approval
+              data={formData.approval}
+              userRole={userRole}
+              userDetails={userDetails}
+              onDataChange={setFormData}
+            />
+          )}
+          {selectedStepperVersionId === 4 && (
+            <PurchaseOrder data={formData.purchaseOrder} />
+          )}
+          {selectedStepperVersionId === 5 && (
+            <Invoice data={formData.invoice} />
+          )}
+        </div>
+
+        {/* FOOTER */}
+        <div className={procurementSysStyles.footer}>
+          <span className={procurementSysStyles.footerStepLabel}>
+            Step <strong>{selectedStepperVersionId}</strong> of{" "}
+            <strong>5</strong> ·{" "}
+            {stepperArr.find((e) => e.id === selectedStepperVersionId)?.title}
+          </span>
+          <div className={procurementSysStyles.footerActions}>
+            {selectedStepperVersionId > 1 && (
+              <Button
+                label="Previous"
+                icon="pi pi-arrow-left"
+                className="p-button-secondary"
+                style={{
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  fontSize: 13,
+                }}
+                onClick={() => setselectedStepperVersionId((prev) => prev - 1)}
+              />
+            )}
+            <Button
+              label="Cancel"
+              icon="pi pi-times"
+              className="p-button-secondary"
+              style={{
+                borderRadius: 10,
+                padding: "8px 16px",
+                fontSize: 13,
+              }}
+              onClick={() => {
+                navigate("/");
+                setselectedStepperVersionId(1);
+              }}
+            />
+            {formData.ActiveTab === 1 && selectedStepperVersionId === 1 ? (
+              <Button
+                label="Proceed to RFQ →"
+                className="p-button-success"
+                style={{
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  fontSize: 13,
+                }}
+                onClick={async () => setVendorDialogVisible(true)}
+              />
+            ) : formData.ActiveTab === 2 && selectedStepperVersionId === 2 ? (
+              <Button
+                label="Submit"
+                icon="pi pi-check"
+                className="p-button-success"
+                style={{
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  fontSize: 13,
+                }}
+                onClick={async () => {
+                  if (
+                    formData.vendorComparison.vendors?.filter(
+                      (v: any) => v.selected,
+                    ).length > 0
+                  ) {
+                    await addUserSelectedVendor();
+                  }
+                }}
+              />
+            ) : formData.ActiveTab === 3 &&
+              selectedStepperVersionId === 3 &&
+              userRole !== "User" ? (
+              <>
+                <Button
+                  label="Approve"
+                  icon="pi pi-check"
+                  className="p-button-success"
+                  style={{
+                    borderRadius: 10,
+                    padding: "8px 16px",
+                    fontSize: 13,
+                  }}
+                  onClick={async () => {
+                    if (formData.approval.comments.trim()) {
+                      await approveRejectComments("Approved");
+                    }
+                  }}
+                />
+                <Button
+                  label="Reject"
+                  icon="pi pi-times"
+                  style={{
+                    borderRadius: 10,
+                    padding: "8px 16px",
+                    fontSize: 13,
+                  }}
+                  className="p-button-danger"
+                  onClick={async () => {
+                    if (formData.approval.comments.trim()) {
+                      await approveRejectComments("Rejected");
+                    }
+                  }}
+                />
+              </>
+            ) : Number(formData.ActiveTab) >
+              Number(selectedStepperVersionId) ? (
+              <Button
+                label="Next →"
+                className="p-button-success"
+                style={{
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  fontSize: 13,
+                }}
+                onClick={() => setselectedStepperVersionId((prev) => prev + 1)}
+              />
+            ) : null}
+          </div>
+        </div>
+      </div>
+
       {/* Vendor selection dialog */}
       <Dialog
         header="Select Vendor"
@@ -476,12 +642,22 @@ const ProcurementSystem = (props: any) => {
           <Button
             label="Close"
             className="p-button-secondary"
+            style={{
+              borderRadius: 10,
+              padding: "8px 16px",
+              fontSize: 13,
+            }}
             onClick={() => setVendorDialogVisible(false)}
           />
           <Button
             label="Send RFQ"
             icon="pi pi-send"
             className="p-button-success"
+            style={{
+              borderRadius: 10,
+              padding: "8px 16px",
+              fontSize: 13,
+            }}
             onClick={async () => {
               if (vendorsList.filter((v) => v.isSelected).length > 0) {
                 await addSelectedVendor();
@@ -490,110 +666,6 @@ const ProcurementSystem = (props: any) => {
           />
         </div>
       </Dialog>
-      {/* Footer with Cancel and Submit buttons */}
-      <div
-        style={{
-          // position: "fixed",
-          // left: 0,
-          // right: 0,
-          // bottom: 0,
-          padding: "12px 20px",
-          background: "#ffffff",
-          borderTop: "1px solid #e6e6e6",
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 12,
-          // zIndex: 1000,
-        }}
-      >
-        {selectedStepperVersionId != 1 && (
-          <Button
-            label={"Previous"}
-            icon="pi pi-arrow-left"
-            onClick={() => setselectedStepperVersionId((prev) => prev - 1)}
-          />
-        )}
-        {/* <Button
-          label="Select Vendor"
-          icon="pi pi-users"
-          className="p-button-text"
-          
-        /> */}
-        <Button
-          label="Cancel"
-          icon="pi pi-times"
-          className="p-button-secondary"
-          onClick={() => {
-            // navigate back to dashboard or reset stepper
-            navigate("/");
-            setselectedStepperVersionId(1);
-          }}
-        />
-        {/* {formData.ActiveTab >= selectedStepperVersionId && (
-          <Button
-            label={"Next"}
-            icon="pi pi-arrow-right"
-            onClick={() => setselectedStepperVersionId((prev) => prev + 1)}
-          />
-        )} */}
-        {formData.ActiveTab === 1 && selectedStepperVersionId == 1 ? (
-          <Button
-            label="Proceed to RFQ"
-            icon="pi pi-save"
-            onClick={async () => {
-              setVendorDialogVisible(true);
-            }}
-          />
-        ) : formData.ActiveTab === 2 && selectedStepperVersionId == 2 ? (
-          <Button
-            label="Submit"
-            icon="pi pi-check"
-            className="p-button-success"
-            onClick={async () => {
-              if (
-                formData.vendorComparison.vendors?.filter(
-                  (v: any) => v.selected,
-                ).length > 0
-              ) {
-                await addUserSelectedVendor();
-              }
-            }}
-          />
-        ) : formData.ActiveTab === 3 &&
-          selectedStepperVersionId == 3 &&
-          userRole !== "User" ? (
-          <>
-            <Button
-              label="Approve"
-              icon="pi pi-check"
-              className="p-button-success"
-              onClick={async () => {
-                if (formData.approval.comments.trim()) {
-                  await approveRejectComments("Approved");
-                }
-                // await addUserSelectedVendor();
-              }}
-            />
-            <Button
-              label="Reject"
-              icon="pi pi-check"
-              className="p-button-success"
-              onClick={async () => {
-                if (formData.approval.comments.trim()) {
-                  await approveRejectComments("Rejected");
-                }
-                // await addUserSelectedVendor();
-              }}
-            />
-          </>
-        ) : Number(formData.ActiveTab) > Number(selectedStepperVersionId) ? (
-          <Button
-            label={"Next"}
-            icon="pi pi-arrow-right"
-            onClick={() => setselectedStepperVersionId((prev) => prev + 1)}
-          />
-        ) : null}
-      </div>
     </div>
   );
 };

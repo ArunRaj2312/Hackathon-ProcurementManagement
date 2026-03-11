@@ -90,7 +90,7 @@ li {
   background-color: #ffffff80;
   border: none;
   color: #333333;
-  border-radius: 8px;
+  border-radius: 50%;
   font-size: 0.8rem;
   height: 32px;
   min-width: 32px;
@@ -100,8 +100,9 @@ li {
   gap: 8px;
 }
 .p-paginator .p-highlight {
-  background-color: var(--themeColorDark);
-  color: #fff !important;
+  background-color: #e5f7e9;
+  color: #28a745 !important;
+  font-weight: 600;
 }
 .p-button {
   padding: 0.3rem 0.5rem;
@@ -116,6 +117,10 @@ li {
 .p-dialog-footer {
   border: none;
 }
+.p-datatable .p-datatable-tbody > tr > td {
+  border: none;
+  border-bottom: 1px solid #dee2e699;
+}
 
 /* common classes */
 .editIcon {
@@ -123,13 +128,13 @@ li {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   cursor: pointer;
   transition: background-color 0.2s;
   i {
     color: var(--royalBlue);
-    font-size: 16px;
+    font-size: 14px;
   }
 }
 .editIcon:hover {
