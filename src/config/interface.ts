@@ -57,11 +57,16 @@ export interface PurchaseOrderLineItem {
 
 export interface PurchaseOrder {
   poNumber: string;
+  prId?: string;
   issueDate: string;
-  vendor: { name: string; code: string };
+  vendor: { name: string; code: string; gstNumber?: string; address?: string; contactPerson?: string; };
   deliveryDate: string;
   paymentTerms: string;
   lineItems: PurchaseOrderLineItem[];
+  subTotal?: string;
+  cgst?: string;
+  sgst?: string;
+  totalAmount?: string;
 }
 
 export interface Invoice {

@@ -37,7 +37,16 @@ const Dashboard: React.FC = () => {
   const [isLoader, setIsLoader] = useState(false);
 
   const onChangeHandler = (key: string, value: string) => {
-    setSelectedRow((prev: any) => ({ ...prev, [key]: value }));
+    let tempRow = { ...selectedRow };
+    tempRow = { ...tempRow, [key]: value };
+    if (
+      (key === "quantity" || key === "price") &&
+      tempRow.quantity &&
+      tempRow.price
+    ) {
+      tempRow.total = Number(tempRow.quantity) * Number(tempRow.price);
+    }
+    setSelectedRow({ ...tempRow });
   };
 
   const getProcurementData = async () => {
@@ -178,7 +187,7 @@ const Dashboard: React.FC = () => {
         })
       }
     >
-      {rowData.prId || "—"}
+      {"PR - " + rowData.id?.toString().padStart(4, "0")}
     </span>
   );
 
