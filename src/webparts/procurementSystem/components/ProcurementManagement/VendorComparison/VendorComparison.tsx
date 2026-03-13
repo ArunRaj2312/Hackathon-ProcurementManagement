@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import vendorStyles from "../VendorComparison/VendorComparison.module.scss";
+// import { getVendorComparisonAI } from "../../../../../services/aiService";
 
 // Placeholder vendor names
 const VENDOR_SLOTS = ["Vendor 1", "Vendor 2", "Vendor 3", "Vendor 4"];
@@ -10,19 +11,30 @@ const VendorComparison = (props: {
   activeTab: Number;
   onDataChange?: (data: any) => void;
 }) => {
-  const [openVendor, setOpenVendor] = useState<number | null>(null);
+  // const [openVendor, setOpenVendor] = useState<number | null>(null);
   const [aiOverview, setAiOverview] = useState<string>(
     "Analyzing vendors with AI...",
   );
+  console.log("aiOverview", aiOverview);
 
-  const handleToggle = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setOpenVendor((prev) => (prev === id ? null : id));
-  };
+  // const handleToggle = (id: number, e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   setOpenVendor((prev) => (prev === id ? null : id));
+  // };
 
-  React.useEffect(() => {
+  useEffect(() => {
     setAiOverview("");
   }, []);
+  // useEffect(() => {
+  //   const loadAI = async () => {
+  //     const result = await getVendorComparisonAI(props.data?.vendors);
+
+  //     setAiOverview(result);
+  //   };
+  //   if (props.data?.vendors) {
+  //     void loadAI();
+  //   }
+  // }, [props.data?.vendors]);
 
   console.log("props.data", props.data);
 
@@ -214,7 +226,7 @@ const VendorComparison = (props: {
                   </div>
                 </div>
 
-                {/* View Score Breakdown toggle */}
+                {/* View Score Breakdown toggle
                 <div
                   className={vendorStyles.viewScoreMainCon}
                   onClick={(e) => handleToggle(item?.id, e)}
@@ -227,9 +239,9 @@ const VendorComparison = (props: {
                       openVendor === item?.id ? "pi-angle-up" : "pi-angle-down"
                     }`}
                   />
-                </div>
+                </div>*/}
 
-                {openVendor === item?.id && (
+                {/* {openVendor === item?.id && (
                   <div className={vendorStyles.viewScoreContentMainCon}>
                     <div className={vendorStyles.viewScoreItem}>
                       <p className={vendorStyles.viewScoreContentLabel}>
@@ -267,7 +279,7 @@ const VendorComparison = (props: {
                       </p>
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             );
           })}
@@ -287,25 +299,25 @@ const VendorComparison = (props: {
             ))}
           </div>
         </div> */}
-         <div className={vendorStyles.aiOverviewMainCon}>
-        <div className={vendorStyles.aiOverviewLabelCon}>
-          <p className={vendorStyles.labelStyle}>
-            <i className={`${vendorStyles.aiIconStyle} pi pi-sparkles`} />
-            AI Overview
-          </p>
-        </div>
-        <div className={vendorStyles.aiContentCon}>
-          {aiOverview ? (
-            aiOverview.split("\n").map((line, index) => (
-              <p key={index}>{line}</p>
-            ))
-          ) : (
-            <p style={{ color: "#a0aab4", fontStyle: "italic" }}>
-              AI analysis will appear here once generated.
+        <div className={vendorStyles.aiOverviewMainCon}>
+          <div className={vendorStyles.aiOverviewLabelCon}>
+            <p className={vendorStyles.labelStyle}>
+              <i className={`${vendorStyles.aiIconStyle} pi pi-sparkles`} />
+              AI Overview
             </p>
-          )}
+          </div>
+          <div className={vendorStyles.aiContentCon}>
+            {aiOverview ? (
+              aiOverview
+                .split("\n")
+                .map((line, index) => <p key={index}>{line}</p>)
+            ) : (
+              <p style={{ color: "#a0aab4", fontStyle: "italic" }}>
+                AI analysis will appear here once generated.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
       </div>
     </>
   );

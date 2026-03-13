@@ -14,6 +14,7 @@ import SPServices from "../../../../CommonServices/SPServices";
 import { sp } from "@pnp/sp/presets/all";
 import { ProcurementFormData } from "../../../../config/interface";
 import { newData } from "../../../../config/config";
+import MainLoader from "../Loader/MainLoader";
 
 const ProcurementSystem = (props: any) => {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ const ProcurementSystem = (props: any) => {
     },
   ];
 
+  const [isLoader, setIsLoader] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string>("User");
   const [userDetails, setUserDetails] = useState<any>({
     text: "",
@@ -62,76 +64,116 @@ const ProcurementSystem = (props: any) => {
     useState<boolean>(false);
   const [vendorsList, setVendorsList] = useState<any[]>([]);
 
-  const approveRejectComments = async (status: string) => {
-    let Json: any = {
-      Comments: formData.approval.comments,
-      Status: status,
-    };
-    if (status === "Approved") {
-      Json = { ...Json, ActiveTab: 4 };
-    }
-    await SPServices.SPUpdateItem({
-      Listname: "ProcurementDetails",
-      ID: formData.basicInformation.id,
-      RequestJSON: {
-        ...Json,
-      },
-    });
-    setVendorDialogVisible(false);
-    navigate("/");
-  };
-
-  const addSelectedVendor = async () => {
-    const selected = vendorsList.filter((v) => v.isSelected);
-    for (let i = 0; i < selected.length; i++) {
-      const sel = selected[i];
-      await SPServices.SPAddItem({
-        Listname: "SelectedVendorDetails",
-        RequestJSON: {
-          PRIdId: formData.basicInformation.id,
-          VendorId: sel.id,
-        },
-      });
-      if (i === selected.length - 1) {
-        await SPServices.SPUpdateItem({
-          Listname: "ProcurementDetails",
-          ID: formData.basicInformation.id,
-          RequestJSON: {
-            ActiveTab: 2,
-          },
-        });
-        setVendorDialogVisible(false);
-        navigate("/");
-      }
-    }
-  };
-
-  const addUserSelectedVendor = async () => {
-    const selected = formData.vendorComparison.vendors?.filter(
-      (v: any) => v.selected,
-    );
-    if (selected.length > 0) {
-      const sel = selected[0];
+  const sendPO = async () => {
+    try {
+      setIsLoader(true);
       await SPServices.SPUpdateItem({
-        Listname: "SelectedVendorDetails",
-        ID: sel.id,
-        RequestJSON: {
-          Selected: true,
-        },
+        Listname: "ProcurementDetails",
+        ID: formData.basicInformation.id,
+        RequestJSON: { ActiveTab: 5, SendPo: true },
       });
+      setIsLoader(false);
+      navigate("/");
+    } catch (error) {
+      console.error("Error in sendPO:", error);
+      setIsLoader(false);
+    }
+  };
+
+  const approveRejectComments = async (status: string) => {
+    try {
+      setIsLoader(true);
+      let Json: any = {
+        Comments: formData.approval.comments,
+        Status: status,
+      };
+      if (status === "Approved") {
+        Json = { ...Json, ActiveTab: 4 };
+      }
       await SPServices.SPUpdateItem({
         Listname: "ProcurementDetails",
         ID: formData.basicInformation.id,
         RequestJSON: {
-          ActiveTab: 3,
+          ...Json,
         },
       });
+      setVendorDialogVisible(false);
+      setIsLoader(false);
       navigate("/");
-    } else {
-      navigate("/");
+    } catch (error) {
+      console.error("Error in approveRejectComments:", error);
+      setIsLoader(false);
     }
-    navigate("/");
-    console.log("Selected vendors (name,id,isSlected):", selected);
+  };
+
+  const addSelectedVendor = async () => {
+    try {
+      const selected = vendorsList.filter((v) => v.isSelected);
+      if (selected.length > 0) {
+        for (let i = 0; i < selected.length; i++) {
+          setIsLoader(true);
+          const sel = selected[i];
+          await SPServices.SPAddItem({
+            Listname: "SelectedVendorDetails",
+            RequestJSON: {
+              PRIdId: formData.basicInformation.id,
+              VendorId: sel.id,
+            },
+          });
+          if (i === selected.length - 1) {
+            await SPServices.SPUpdateItem({
+              Listname: "ProcurementDetails",
+              ID: formData.basicInformation.id,
+              RequestJSON: {
+                ActiveTab: 2,
+              },
+            });
+            setIsLoader(false);
+            setVendorDialogVisible(false);
+            navigate("/");
+          }
+        }
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error in addSelectedVendor:", error);
+      setIsLoader(false);
+    }
+  };
+
+  const addUserSelectedVendor = async () => {
+    try {
+      const selected = formData.vendorComparison.vendors?.filter(
+        (v: any) => v.selected,
+      );
+      if (selected.length > 0) {
+        setIsLoader(true);
+        const sel = selected[0];
+        await SPServices.SPUpdateItem({
+          Listname: "SelectedVendorDetails",
+          ID: sel.id,
+          RequestJSON: {
+            Selected: true,
+          },
+        });
+        await SPServices.SPUpdateItem({
+          Listname: "ProcurementDetails",
+          ID: formData.basicInformation.id,
+          RequestJSON: {
+            ActiveTab: 3,
+          },
+        });
+        setIsLoader(false);
+        navigate("/");
+      } else {
+        navigate("/");
+      }
+      navigate("/");
+    } catch (error) {
+      console.error("Error in addUserSelectedVendor:", error);
+      setIsLoader(false);
+    }
   };
 
   const fetchVendors = async (prId: any) => {
@@ -154,7 +196,7 @@ const ProcurementSystem = (props: any) => {
         id: item.Id || "",
         isSelected: false,
       }));
-
+      setIsLoader(false);
       setVendorsList(mapped);
     } catch (err) {
       console.error("Error fetching vendors:", err);
@@ -198,133 +240,195 @@ const ProcurementSystem = (props: any) => {
       return [];
     }
   };
+
+  const getUserDetails = async () => {
+    try {
+      const res: any[] = await SPServices.SPReadItems({
+        Listname: "UserDetails",
+        Select: "*,User/Title,User/EMail",
+        Expand: "User",
+        Filter: [
+          {
+            FilterKey: "User/EMail",
+            Operator: "eq",
+            FilterValue: loggedInUserEmail,
+          },
+        ],
+      });
+
+      const mapped = (res || []).map((item: any) => ({
+        name: item?.User?.Title || "",
+        mail: item?.User?.EMail || "",
+        empId: item.EmployeeId || "",
+        designation: item.Designation || "",
+        location: item.Location || "",
+      }));
+      return mapped.length > 0 ? mapped[0] : [];
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+    }
+  };
   console.log("formda", formData);
 
   const getProcurementData = async () => {
-    await SPServices.SPReadItemUsingId({
-      Listname: "ProcurementDetails",
-      SelectedId: id,
-      Select: "*,Requestor/Title,Item/Title,Item/PRId",
-      Expand: "Requestor,Item",
-    })
-      .then(async (res: any) => {
-        const selectedVendorData: any[] = await getSelectedVendorData(res.Id);
-
-        setFormData({
-          ActiveTab: res.ActiveTab || 1,
-          basicInformation: {
-            id: res.Id,
-            prId: res.Item?.PRId || "",
-            item: res.Item?.Title || "",
-            quantity: res.Quantity || "",
-            estimatedUnitPrice: res.Price || "",
-            totalEstimated: res.Total || "",
-            requiredDate: res.Date || "",
-            justification: res.Justification || "",
-            requestedBy: "Swetha",
-            employeeId: "E-0052",
-            designation: "Admin",
-            location: "O365",
-            requesterRequiredDate: res.Created || "",
-          },
-          vendorComparison: {
-            vendors: [...selectedVendorData], // Assuming only one vendor is selected,
-          },
-          approval: {
-            selectedVendor: [...selectedVendorData].find(
-              (vendor) => vendor.selected,
-            ) || {
-              id: "",
-              unit: "",
-              days: "",
-              finalScore: "",
-              ontimeDelivery: "",
-              qualityScore: "",
-              aiRecommeded: false,
-              selected: false,
-              viewScoreBreakdown: {
-                priceCompetitiveness: "",
-                deliveryTimeline: "",
-                HistoricalPerformance: "",
-                qualityCertification: "",
-              },
-            },
-            purchaseSummary: {
-              prId: "PR-001",
-              item: "Laptop – Dell Latitude 5440",
-              quantity: "20 Units",
-              totalAmount: "₹13,60,000",
-            },
-            comments: "",
-          },
-          purchaseOrder: {
-            poNumber: "PO-2026-001",
-            issueDate: "22/02/2026",
-            vendor: { name: "Vendor 1", code: "VEN-2025-0142" },
-            deliveryDate: "06/03/2026",
-            paymentTerms: "Net 30 days",
-            lineItems: [
-              {
-                description: "Laptop-Dell Latitude 5440",
-                quantity: "20 units",
-                unitPrice: "68,000",
-                amount: "13,60,000",
-              },
-            ],
-          },
-          invoice: {
-            invoiceNumber: "INV-V-2026-142",
-            invoiceDate: "06/03/2026",
-            vendor: "Vendor 1",
-            vendorCode: "VEN-2025-0142",
-            gstNumber: "06AABC1234F1Z5",
-            amount: "₹1,29,800",
-            dueDate: "05/04/2026",
-          },
-        });
-        await fetchVendors(res.ItemId || "");
-      })
-      .catch((err) => {
-        console.error("Error fetching data from SP List:", err);
+    try {
+      const res: any = await SPServices.SPReadItemUsingId({
+        Listname: "ProcurementDetails",
+        SelectedId: id,
+        Select: "*,Requestor/Title,Item/Title,Item/PRId",
+        Expand: "Requestor,Item",
       });
+      const selectedVendorData: any[] = await getSelectedVendorData(res.Id);
+      const userDetails: any = await getUserDetails();
+
+      // Fetch VendorDetails to get actual vendor names and properties
+      let vendorDetailsList: any[] = [];
+      try {
+        vendorDetailsList = await SPServices.SPReadItems({
+          Listname: "VendorDetails",
+          Select: "*",
+          Filter: [
+            {
+              FilterKey: "PRItemId",
+              Operator: "eq",
+              FilterValue: res.ItemId,
+            },
+          ],
+        });
+      } catch (err) {
+        console.error("Error fetching vendor details:", err);
+      }
+
+      const approvedSelectedVendor = [...selectedVendorData].find((v) => v.selected);
+      let selectedVendorInfo: any = {};
+      if (approvedSelectedVendor) {
+        // Find the corresponding VendorDetail using VendorId
+        const matchingVendorDetail = vendorDetailsList.find((vd) => vd.Id === approvedSelectedVendor.id || String(vd.Id) === String(approvedSelectedVendor.vendorId)); // Often SelectedVendorDetails.VendorId points to VendorDetails
+        selectedVendorInfo = matchingVendorDetail || {};
+      }
+
+      // Calculations for PO
+      const amountNum = parseFloat(res.Total) || 0;
+      const cgstNum = amountNum * 0.09;
+      const sgstNum = amountNum * 0.09;
+      const totalAmountNum = amountNum + cgstNum + sgstNum;
+      
+      const formatCurrency = (val: number) => `₹ ${val.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+
+      setFormData({
+        ActiveTab: res.ActiveTab || 1,
+        basicInformation: {
+          id: res.Id,
+          prId: res.Item?.PRId || "",
+          item: res.Item?.Title || "",
+          quantity: res.Quantity || "",
+          estimatedUnitPrice: res.Price || "",
+          totalEstimated: res.Total || "",
+          requiredDate: res.Date || "",
+          justification: res.Justification || "",
+          requestedBy: userDetails.name || "",
+          employeeId: userDetails.empId || "",
+          designation: userDetails.designation || "",
+          location: userDetails.location || "",
+          requesterRequiredDate: res.Created || "",
+        },
+        vendorComparison: {
+          vendors: [...selectedVendorData], // Assuming only one vendor is selected,
+        },
+        approval: {
+          selectedVendor: approvedSelectedVendor || {
+            id: "", unit: "", days: "", finalScore: "", ontimeDelivery: "",
+            qualityScore: "", aiRecommeded: false, selected: false,
+            viewScoreBreakdown: { priceCompetitiveness: "", deliveryTimeline: "", HistoricalPerformance: "", qualityCertification: "" },
+          },
+          purchaseSummary: {
+            prId: res.Item?.PRId || "PR-001",
+            item: res.Item?.Title || "",
+            quantity: res.Quantity ? `${res.Quantity} Units` : "",
+            totalAmount: formatCurrency(amountNum),
+          },
+          comments: "",
+        },
+        purchaseOrder: {
+          poNumber: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(res.Id)).slice(-3) : "001"}`,
+          prId: res.Item?.PRId || "N/A",
+          issueDate: new Date().toLocaleDateString("en-GB"),
+          vendor: { 
+            name: selectedVendorInfo?.Title || "Selected Vendor", 
+            code: selectedVendorInfo?.VendorCode || `VEN-${new Date().getFullYear()}-001`,
+            gstNumber: selectedVendorInfo?.GSTNumber || "06AABC1234F1Z5",
+            address: selectedVendorInfo?.Address || "Vendor Address",
+            contactPerson: selectedVendorInfo?.ContactPerson || "Contact Person"
+          },
+          deliveryDate: res.Date ? new Date(res.Date).toLocaleDateString("en-GB") : "",
+          paymentTerms: selectedVendorInfo?.PaymentTerms || "Net 30 days",
+          lineItems: [
+            {
+              description: res.Item?.Title || "",
+              quantity: res.Quantity ? `${res.Quantity} units` : "",
+              unitPrice: res.Price ? formatCurrency(parseFloat(res.Price)) : "",
+              amount: res.Total ? formatCurrency(amountNum) : "",
+            },
+          ],
+          subTotal: formatCurrency(amountNum),
+          cgst: formatCurrency(cgstNum),
+          sgst: formatCurrency(sgstNum),
+          totalAmount: formatCurrency(totalAmountNum),
+        },
+        invoice: {
+          invoiceNumber: `INV-V-${new Date().getFullYear()}-${res.Id}`,
+          invoiceDate: new Date().toLocaleDateString("en-GB"),
+          vendor: selectedVendorInfo?.Title || "Selected Vendor",
+          vendorCode: selectedVendorInfo?.VendorCode || `VEN-${new Date().getFullYear()}-001`,
+          gstNumber: selectedVendorInfo?.GSTNumber || "06AABC1234F1Z5",
+          amount: formatCurrency(totalAmountNum),
+          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-GB"),
+        },
+      });
+      await fetchVendors(res.ItemId || "");
+    } catch (err) {
+      console.error("Error fetching data from SP List:", err);
+    }
   };
 
   const getApproverConfig = async () => {
-    await SPServices.SPReadItems({
-      Listname: "ApproverConfig",
-      Select: "*,Approver/Title",
-      Expand: "Approver",
-      Filter: [
-        {
-          FilterKey: "Approver/EMail",
-          Operator: "eq",
-          FilterValue: loggedInUserEmail,
-        },
-      ],
-    })
-      .then(async (res: any) => {
-        if (res && res.length > 0) {
-          setUserRole(res[0].Role);
-        }
-        await getProcurementData();
-        console.log("Approver config data", res);
-      })
-      .catch((err) => {
-        console.error("Error fetching approver config data", err);
+    try {
+      const res: any = await SPServices.SPReadItems({
+        Listname: "ApproverConfig",
+        Select: "*,Approver/Title",
+        Expand: "Approver",
+        Filter: [
+          {
+            FilterKey: "Approver/EMail",
+            Operator: "eq",
+            FilterValue: loggedInUserEmail,
+          },
+        ],
       });
+      if (res && res.length > 0) {
+        setUserRole(res[0].Role);
+      }
+      await getProcurementData();
+      console.log("Approver config data", res);
+    } catch (err) {
+      console.error("Error fetching approver config data", err);
+    }
   };
 
   const getCurrentUserDetails = async () => {
-    await sp.web
-      .ensureUser(loggedInUserEmail.toLowerCase())
-      .then(async (user: any) => {
-        setUserDetails({
-          text: user.data.Title,
-          secondaryText: user.data.Email,
-          id: user.data.Id,
-        });
-        await getApproverConfig();
+    try {
+      setIsLoader(true);
+      const user: any = await sp.web.ensureUser(loggedInUserEmail.toLowerCase());
+      setUserDetails({
+        text: user.data.Title,
+        secondaryText: user.data.Email,
+        id: user.data.Id,
       });
+      await getApproverConfig();
+    } catch (error) {
+      console.error("Error in getCurrentUserDetails:", error);
+      setIsLoader(false);
+    }
   };
 
   const toggleVendorSelection = (id: any) => {
@@ -351,7 +455,9 @@ const ProcurementSystem = (props: any) => {
     5: "Payment & close",
   };
 
-  return (
+  return isLoader ? (
+    <MainLoader />
+  ) : (
     <div className={procurementSysStyles.mainBodyLayout}>
       {/* LEFT SIDEBAR */}
       <div className={procurementSysStyles.sidebar}>
@@ -579,6 +685,20 @@ const ProcurementSystem = (props: any) => {
                   }}
                 />
               </>
+            ) : formData.ActiveTab === 4 && selectedStepperVersionId === 4 ? (
+              <Button
+                label="Send PO"
+                icon="pi pi-check"
+                className="p-button-success"
+                style={{
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  fontSize: 13,
+                }}
+                onClick={async () => {
+                  await sendPO();
+                }}
+              />
             ) : Number(formData.ActiveTab) >
               Number(selectedStepperVersionId) ? (
               <Button

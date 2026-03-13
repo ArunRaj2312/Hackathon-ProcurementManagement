@@ -4,21 +4,7 @@ import styles from "./PurchaseOrder.module.scss";
 const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
   const data = props.data || {};
 
-  const lineItems = data.lineItems || [
-    {
-      description: "Laptop — Dell Latitude 5440",
-      subDescription: "Electronics · Hardware · SKU: DL-LAT-5440",
-      quantity: "20 units",
-      unitPrice: "68,000",
-      amount: "13,60,000",
-    },
-  ];
-
-  const subTotal = "13,60,000";
-  const cgst = "9,900";
-  const sgst = "9,900";
-  const totalAmount = "₹ 13,78,800";
-
+  const lineItems = data.lineItems || [];
   return (
     <div className={styles.wrapper}>
       <div className={styles.mainGrid}>
@@ -35,7 +21,7 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 <p className={styles.poCardTitle}>Purchase Order</p>
               </div>
               <span className={styles.poCardSubInfo}>
-                {data.poNumber || "PO-2026-001"} · Generated from PR-001
+                {data.poNumber || "N/A"} · Generated from {data.prId || "N/A"}
               </span>
             </div>
 
@@ -43,14 +29,16 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
             <div className={styles.poTop}>
               <div className={styles.poNumberBlock}>
                 <p className={styles.fieldLabel}>Purchase Order Number</p>
-                <p className={styles.poNumber}>{data.poNumber || "PO-2026-001"}</p>
+                <p className={styles.poNumber}>
+                  {data.poNumber || "N/A"}
+                </p>
               </div>
               <div className={styles.issueDateBlock}>
                 <p className={styles.fieldLabel}>Issue Date</p>
                 <p className={styles.issueDate}>
                   {data.issueDate
                     ? data.issueDate.replace(/\//g, " / ")
-                    : "22 / 02 / 2026"}
+                    : "N/A"}
                 </p>
               </div>
             </div>
@@ -61,37 +49,56 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
               <div className={styles.subTitleCon}>
                 <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>Company Name</p>
-                  <p className={styles.itemValueCon}>{data.vendor?.name || "Vendor 1"}</p>
+                  <p className={styles.itemValueCon}>
+                    {data.vendor?.name || "N/A"}
+                  </p>
                 </div>
                 <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>Vendor Code</p>
-                  <p className={styles.itemValueCon}>{data.vendor?.code || "VEN-2025-0142"}</p>
+                  <p className={styles.itemValueCon}>
+                    {data.vendor?.code || "N/A"}
+                  </p>
                 </div>
                 <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>GST Number</p>
-                  <p className={styles.itemValueCon}>06AABC1234F1Z5</p>
+                  <p className={styles.itemValueCon}>
+                    {data.vendor?.gstNumber || "N/A"}
+                  </p>
                 </div>
                 <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>Contact Person</p>
-                  <p className={styles.itemValueCon}>Ramesh Kumar</p>
+                  <p className={styles.itemValueCon}>
+                    {data.vendor?.contactPerson || "N/A"}
+                  </p>
                 </div>
-                <div className={styles.itemCon} style={{ gridColumn: "span 2" }}>
+                <div
+                  className={styles.itemCon}
+                  style={{ gridColumn: "span 2" }}
+                >
                   <p className={styles.itemLabelCon}>Address</p>
                   <p className={styles.itemValueCon}>
-                    Plot 45, Industrial Area, Sector 18<br />
-                    Gurgaon, Haryana — 122015
+                    {data.vendor?.address
+                      ? data.vendor.address.split("\n").map((line: string, i: number) => (
+                          <React.Fragment key={i}>
+                            {line}
+                            <br />
+                          </React.Fragment>
+                        ))
+                      : "N/A"}
                   </p>
                 </div>
                 <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>Delivery Date</p>
                   <p className={styles.itemValueCon}>
-                    <strong>{data.deliveryDate || "06 Mar 2026"}</strong>
+                    <strong>{data.deliveryDate || "N/A"}</strong>
                   </p>
                 </div>
                 <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>Payment Terms</p>
-                  <p className={`${styles.itemValueCon} ${styles.itemValueGreen}`}>
-                    {data.paymentTerms || "Net 30 days"}
+                  <p
+                    className={`${styles.itemValueCon} ${styles.itemValueGreen}`}
+                  >
+                    {data.paymentTerms || "N/A"}
                   </p>
                 </div>
               </div>
@@ -105,7 +112,9 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 <div className={styles.lineItemsIconWrap}>📦</div>
                 <p className={styles.lineItemsTitle}>Line Items</p>
               </div>
-              <span className={styles.lineItemCount}>{lineItems.length} item</span>
+              <span className={styles.lineItemCount}>
+                {lineItems.length} item{lineItems.length !== 1 ? 's' : ''}
+              </span>
             </div>
 
             <table className={styles.lineItemsTable}>
@@ -121,14 +130,18 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 {lineItems.map((item: any, idx: number) => (
                   <tr key={idx}>
                     <td>
-                      <span className={styles.tdItemName}>{item.description}</span>
+                      <span className={styles.tdItemName}>
+                        {item.description || "N/A"}
+                      </span>
                       {item.subDescription && (
-                        <span className={styles.tdItemSub}>{item.subDescription}</span>
+                        <span className={styles.tdItemSub}>
+                          {item.subDescription}
+                        </span>
                       )}
                     </td>
-                    <td>{item.quantity}</td>
-                    <td>{item.unitPrice}</td>
-                    <td>{item.amount}</td>
+                    <td>{item.quantity || "N/A"}</td>
+                    <td>{item.unitPrice || "N/A"}</td>
+                    <td>{item.amount || "N/A"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -138,21 +151,21 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
             <div className={styles.totalsSection}>
               <div className={styles.totalsRow}>
                 <p className={styles.totalsLabel}>Sub Total</p>
-                <p className={styles.totalsValue}>{subTotal}</p>
+                <p className={styles.totalsValue}>{data.subTotal || "0"}</p>
               </div>
               <div className={styles.totalsRow}>
                 <p className={styles.totalsLabel}>CGST (9%)</p>
-                <p className={styles.totalsValue}>{cgst}</p>
+                <p className={styles.totalsValue}>{data.cgst || "0"}</p>
               </div>
               <div className={styles.totalsRow}>
                 <p className={styles.totalsLabel}>SGST (9%)</p>
-                <p className={styles.totalsValue}>{sgst}</p>
+                <p className={styles.totalsValue}>{data.sgst || "0"}</p>
               </div>
             </div>
             {/* Grand Total */}
             <div className={styles.totalAmountRow}>
               <p className={styles.totalAmountLabel}>Total Amount</p>
-              <p className={styles.totalAmountValue}>{totalAmount}</p>
+              <p className={styles.totalAmountValue}>{data.totalAmount || "0"}</p>
             </div>
           </div>
         </div>
@@ -166,14 +179,14 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
               <p className={styles.actionsTitle}>Actions</p>
             </div>
             <div className={styles.actionsBody}>
-              <button className={styles.btnPrimary}>
+              {/* <button className={styles.btnPrimary}>
                 <i className="pi pi-file-pdf" />
                 Generate PDF
               </button>
               <button className={styles.btnOutline}>
                 <i className="pi pi-send" />
                 Email Vendor
-              </button>
+              </button> */}
               <button className={styles.btnOutline}>
                 <i className="pi pi-download" />
                 Download Copy
@@ -190,29 +203,37 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
             <div className={styles.summaryBody}>
               <div className={styles.summaryRow}>
                 <p className={styles.summaryLabel}>PO Number</p>
-                <p className={styles.summaryPoNumber}>{data.poNumber || "PO-2026-001"}</p>
+                <p className={styles.summaryPoNumber}>
+                  {data.poNumber || "N/A"}
+                </p>
               </div>
               <div className={styles.summaryRow}>
                 <p className={styles.summaryLabel}>Vendor</p>
-                <p className={styles.summaryValue}>{data.vendor?.name || "Vendor 1"}</p>
+                <p className={styles.summaryValue}>
+                  {data.vendor?.name || "N/A"}
+                </p>
               </div>
               <div className={styles.summaryRow}>
                 <p className={styles.summaryLabel}>Item</p>
                 <p className={styles.summaryValue}>
-                  {lineItems[0]?.description?.replace("Laptop — ", "") || "Dell Latitude 5440"}
+                  {lineItems[0]?.description || "N/A"}
                 </p>
               </div>
               <div className={styles.summaryRow}>
                 <p className={styles.summaryLabel}>Quantity</p>
-                <p className={styles.summaryValue}>{lineItems[0]?.quantity || "20 Units"}</p>
+                <p className={styles.summaryValue}>
+                  {lineItems[0]?.quantity || "N/A"}
+                </p>
               </div>
               <div className={styles.summaryRow}>
                 <p className={styles.summaryLabel}>Delivery By</p>
-                <p className={styles.summaryValue}>{data.deliveryDate || "06 Mar 2026"}</p>
+                <p className={styles.summaryValue}>
+                  {data.deliveryDate || "N/A"}
+                </p>
               </div>
               <div className={styles.summaryRow}>
                 <p className={styles.summaryLabel}>Total Amount</p>
-                <p className={styles.summaryValueGreen}>{totalAmount}</p>
+                <p className={styles.summaryValueGreen}>{data.totalAmount || "0"}</p>
               </div>
             </div>
           </div>
