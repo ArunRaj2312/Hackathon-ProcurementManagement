@@ -74,6 +74,17 @@ li {
   box-shadow: none !important;
   border-color: #c5c6cc !important;
 }
+.p-dropdown .p-inputtext {
+  border: none;
+}
+.p-inputtext {
+  padding: 0.3rem 0.75rem;
+}
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight,
+.p-calendar .p-datepicker-trigger,
+.p-datepicker table td > span.p-highlight {
+  background-color: #218838;
+}
 .p-inputtext:enabled:focus,
 .p-dropdown:not(.p-disabled).p-focus,
 .p-calendar:not(.p-calendar-disabled).p-focus > .p-inputtext,
@@ -120,6 +131,11 @@ li {
 .p-datatable .p-datatable-tbody > tr > td {
   border: none;
   border-bottom: 1px solid #dee2e699;
+}
+.p-toast {
+  z-index: 99999 !important;
+  width: 75%;
+  font-size: 12px !important;
 }
 
 /* common classes */
