@@ -43,6 +43,9 @@ export interface Approval {
     prId: string;
     item: string;
     quantity: string;
+    unitPrice: string;
+    requiredDate: string;
+    submissionDate: string;
     totalAmount: string;
   };
   comments: string;
@@ -59,7 +62,13 @@ export interface PurchaseOrder {
   poNumber: string;
   prId?: string;
   issueDate: string;
-  vendor: { name: string; code: string; gstNumber?: string; address?: string; contactPerson?: string; };
+  vendor: {
+    name: string;
+    code: string;
+    gstNumber?: string;
+    address?: string;
+    contactPerson?: string;
+  };
   deliveryDate: string;
   paymentTerms: string;
   lineItems: PurchaseOrderLineItem[];
