@@ -4,7 +4,7 @@ import vendorStyles from "../VendorComparison/VendorComparison.module.scss";
 // import { getVendorComparisonAI } from "../../../../../services/aiService";
 
 // Placeholder vendor names
-const VENDOR_SLOTS = ["Vendor 1", "Vendor 2", "Vendor 3", "Vendor 4"];
+// const VENDOR_SLOTS = ["Vendor 1", "Vendor 2", "Vendor 3", "Vendor 4"];
 
 const VendorComparison = (props: {
   data?: any;
@@ -60,7 +60,8 @@ const VendorComparison = (props: {
                 Smart Vendor Evaluation
               </p>
               <p className={vendorStyles.headerSubtitle}>
-                PR-001 · AI-powered vendor comparison and recommendation
+                {props.data?.purchaseSummary?.prId || ""} · AI-powered vendor
+                comparison and recommendation
               </p>
             </div>
           </div>
@@ -72,15 +73,17 @@ const VendorComparison = (props: {
 
         {/* ===== 2x2 VENDOR GRID ===== */}
         <div className={vendorStyles.cardLayoutCon}>
-          {VENDOR_SLOTS.map((slotName, slotIndex) => {
-            const item = vendors[slotIndex];
+          {vendors.map((item, slotIndex) => {
+            // const item = vendors[slotIndex];
 
             // Empty slot
             if (!item) {
               return (
                 <div key={slotIndex} className={vendorStyles.emptyCard}>
                   <i className={`pi pi-inbox ${vendorStyles.emptyCardIcon}`} />
-                  <p className={vendorStyles.emptyCardName}>{slotName}</p>
+                  <p className={vendorStyles.emptyCardName}>
+                    Vendor {slotIndex + 1}
+                  </p>
                   <p className={vendorStyles.emptyCardSub}>
                     No data available yet
                   </p>
@@ -121,7 +124,9 @@ const VendorComparison = (props: {
                 <div className={vendorStyles.vendorNameMainCon}>
                   <div className={vendorStyles.vendorNameCon}>
                     <div className={vendorStyles.vendorNameTopRow}>
-                      <p className={vendorStyles.vendorNameStyle}>{slotName}</p>
+                      <p className={vendorStyles.vendorNameStyle}>
+                        {item.name}
+                      </p>
                       {isTopPick && (
                         <span className={vendorStyles.topPickBadge}>
                           <i className="pi pi-star-fill" />

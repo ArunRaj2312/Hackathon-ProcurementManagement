@@ -219,6 +219,7 @@ const ProcurementSystem = (props: any) => {
 
       const tempVendor: any[] = res.map((item: any) => ({
         id: item.Id || "",
+        vendorId: item.VendorId || "",
         unit: item.Price || "",
         days: item.Days || "",
         finalScore: item.FinalScore || "",
@@ -270,6 +271,27 @@ const ProcurementSystem = (props: any) => {
   };
   console.log("formda", formData);
 
+  // const getDocuments = async (params: { Listname: string; ID: number }) => {
+  //   const item: any = await sp.web.lists
+  //     .getByTitle(params.Listname)
+  //     .items.getById(params.ID);
+
+  //   const attach: any = await item.attachmentFiles();
+
+  //   let MasBills: any[] = [];
+
+  //   attach.forEach((item: any) => {
+  //     MasBills.push({
+  //       name: item.FileName,
+  //       content: item.ServerRelativeUrl,
+  //       type: "Inlist",
+  //       size: null,
+  //     });
+  //   });
+
+  //   return MasBills;
+  // };
+
   const getProcurementData = async () => {
     try {
       const res: any = await SPServices.SPReadItemUsingId({
@@ -294,16 +316,23 @@ const ProcurementSystem = (props: any) => {
               FilterValue: res.ItemId,
             },
           ],
+          FilterCondition: "and",
         });
       } catch (err) {
         console.error("Error fetching vendor details:", err);
       }
 
-      const approvedSelectedVendor = [...selectedVendorData].find((v) => v.selected);
+      const approvedSelectedVendor = [...selectedVendorData].find(
+        (v) => v.selected,
+      );
       let selectedVendorInfo: any = {};
       if (approvedSelectedVendor) {
         // Find the corresponding VendorDetail using VendorId
-        const matchingVendorDetail = vendorDetailsList.find((vd) => vd.Id === approvedSelectedVendor.id || String(vd.Id) === String(approvedSelectedVendor.vendorId)); // Often SelectedVendorDetails.VendorId points to VendorDetails
+        const matchingVendorDetail = vendorDetailsList.find(
+          (vd) =>
+            vd.Id === approvedSelectedVendor.id ||
+            String(vd.Id) === String(approvedSelectedVendor.vendorId),
+        ); // Often SelectedVendorDetails.VendorId points to VendorDetails
         selectedVendorInfo = matchingVendorDetail || {};
       }
 
@@ -312,8 +341,9 @@ const ProcurementSystem = (props: any) => {
       const cgstNum = amountNum * 0.09;
       const sgstNum = amountNum * 0.09;
       const totalAmountNum = amountNum + cgstNum + sgstNum;
-      
-      const formatCurrency = (val: number) => `₹ ${val.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+
+      const formatCurrency = (val: number) =>
+        `₹ ${val.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
       setFormData({
         ActiveTab: res.ActiveTab || 1,
@@ -337,31 +367,47 @@ const ProcurementSystem = (props: any) => {
         },
         approval: {
           selectedVendor: approvedSelectedVendor || {
-            id: "", unit: "", days: "", finalScore: "", ontimeDelivery: "",
-            qualityScore: "", aiRecommeded: false, selected: false,
-            viewScoreBreakdown: { priceCompetitiveness: "", deliveryTimeline: "", HistoricalPerformance: "", qualityCertification: "" },
+            id: "",
+            unit: "",
+            days: "",
+            finalScore: "",
+            ontimeDelivery: "",
+            qualityScore: "",
+            aiRecommeded: false,
+            selected: false,
+            viewScoreBreakdown: {
+              priceCompetitiveness: "",
+              deliveryTimeline: "",
+              HistoricalPerformance: "",
+              qualityCertification: "",
+            },
           },
           purchaseSummary: {
             prId: res.Item?.PRId || "PR-001",
             item: res.Item?.Title || "",
             quantity: res.Quantity ? `${res.Quantity} Units` : "",
+            unitPrice: res.Price,
+            requiredDate: res.Date || "",
+            submissionDate: res.Created || "",
             totalAmount: formatCurrency(amountNum),
           },
-          comments: "",
+          comments: res.Comments || "",
         },
         purchaseOrder: {
           poNumber: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(res.Id)).slice(-3) : "001"}`,
           prId: res.Item?.PRId || "N/A",
           issueDate: new Date().toLocaleDateString("en-GB"),
-          vendor: { 
-            name: selectedVendorInfo?.Title || "Selected Vendor", 
-            code: selectedVendorInfo?.VendorCode || `VEN-${new Date().getFullYear()}-001`,
-            gstNumber: selectedVendorInfo?.GSTNumber || "06AABC1234F1Z5",
-            address: selectedVendorInfo?.Address || "Vendor Address",
-            contactPerson: selectedVendorInfo?.ContactPerson || "Contact Person"
+          vendor: {
+            name: selectedVendorInfo?.Title || "Selected Vendor",
+            code: selectedVendorInfo?.VendorCode || "",
+            gstNumber: selectedVendorInfo?.GSTNumber || "",
+            address: selectedVendorInfo?.Address || "",
+            contactPerson: selectedVendorInfo?.ContactPerson || "",
           },
-          deliveryDate: res.Date ? new Date(res.Date).toLocaleDateString("en-GB") : "",
-          paymentTerms: selectedVendorInfo?.PaymentTerms || "Net 30 days",
+          deliveryDate: res.Date
+            ? new Date(res.Date).toLocaleDateString("en-GB")
+            : "",
+          paymentTerms: selectedVendorInfo?.PaymentTerms || "",
           lineItems: [
             {
               description: res.Item?.Title || "",
@@ -378,11 +424,13 @@ const ProcurementSystem = (props: any) => {
         invoice: {
           invoiceNumber: `INV-V-${new Date().getFullYear()}-${res.Id}`,
           invoiceDate: new Date().toLocaleDateString("en-GB"),
-          vendor: selectedVendorInfo?.Title || "Selected Vendor",
-          vendorCode: selectedVendorInfo?.VendorCode || `VEN-${new Date().getFullYear()}-001`,
-          gstNumber: selectedVendorInfo?.GSTNumber || "06AABC1234F1Z5",
+          vendor: selectedVendorInfo?.Title || "",
+          vendorCode: selectedVendorInfo?.VendorCode || "",
+          gstNumber: selectedVendorInfo?.GSTNumber || "",
           amount: formatCurrency(totalAmountNum),
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-GB"),
+          dueDate: new Date(
+            Date.now() + 30 * 24 * 60 * 60 * 1000,
+          ).toLocaleDateString("en-GB"),
         },
       });
       await fetchVendors(res.ItemId || "");
@@ -418,7 +466,9 @@ const ProcurementSystem = (props: any) => {
   const getCurrentUserDetails = async () => {
     try {
       setIsLoader(true);
-      const user: any = await sp.web.ensureUser(loggedInUserEmail.toLowerCase());
+      const user: any = await sp.web.ensureUser(
+        loggedInUserEmail.toLowerCase(),
+      );
       setUserDetails({
         text: user.data.Title,
         secondaryText: user.data.Email,
@@ -606,8 +656,8 @@ const ProcurementSystem = (props: any) => {
               />
             )}
             <Button
-              label="Cancel"
-              icon="pi pi-times"
+              label="✖ Cancel"
+              // icon="pi pi-times"
               className="p-button-secondary"
               style={{
                 borderRadius: 10,
@@ -632,8 +682,8 @@ const ProcurementSystem = (props: any) => {
               />
             ) : formData.ActiveTab === 2 && selectedStepperVersionId === 2 ? (
               <Button
-                label="Submit"
-                icon="pi pi-check"
+                label="Submit →"
+                // icon="pi pi-check"
                 className="p-button-success"
                 style={{
                   borderRadius: 10,
@@ -655,8 +705,8 @@ const ProcurementSystem = (props: any) => {
               userRole !== "User" ? (
               <>
                 <Button
-                  label="Approve"
-                  icon="pi pi-check"
+                  label="✔ Approve"
+                  // icon="pi pi-check"
                   className="p-button-success"
                   style={{
                     borderRadius: 10,
@@ -670,8 +720,8 @@ const ProcurementSystem = (props: any) => {
                   }}
                 />
                 <Button
-                  label="Reject"
-                  icon="pi pi-times"
+                  label="✖ Reject"
+                  // icon="pi pi-times"
                   style={{
                     borderRadius: 10,
                     padding: "8px 16px",
@@ -687,8 +737,8 @@ const ProcurementSystem = (props: any) => {
               </>
             ) : formData.ActiveTab === 4 && selectedStepperVersionId === 4 ? (
               <Button
-                label="Send PO"
-                icon="pi pi-check"
+                label="Send PO →"
+                // icon="pi pi-check"
                 className="p-button-success"
                 style={{
                   borderRadius: 10,

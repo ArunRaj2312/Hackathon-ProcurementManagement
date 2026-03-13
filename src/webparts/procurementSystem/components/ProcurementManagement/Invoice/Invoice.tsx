@@ -13,7 +13,8 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
           <div>
             <p className={styles.bannerTitle}>Invoice Validation Complete</p>
             <p className={styles.bannerSub}>
-              All steps verified · Ready for payment processing and order closure
+              All steps verified · Ready for payment processing and order
+              closure
             </p>
           </div>
         </div>
@@ -61,19 +62,27 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
             <div className={styles.detailsGrid}>
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>Vendor</p>
-                <p className={styles.itemValueCon}>{data.vendor || "Vendor 1"}</p>
+                <p className={styles.itemValueCon}>
+                  {data.vendor || "Vendor 1"}
+                </p>
               </div>
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>Vendor Code</p>
-                <p className={styles.itemValueCon}>{data.vendorCode || "VEN-2025-0142"}</p>
+                <p className={styles.itemValueCon}>
+                  {data.vendorCode || "VEN-2025-0142"}
+                </p>
               </div>
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>GST Number</p>
-                <p className={styles.itemValueCon}>{data.gstNumber || "06AABC1234F1Z5"}</p>
+                <p className={styles.itemValueCon}>
+                  {data.gstNumber || "06AABC1234F1Z5"}
+                </p>
               </div>
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>Invoice Amount</p>
-                <p className={`${styles.itemValueCon} ${styles.itemValueGreen}`}>
+                <p
+                  className={`${styles.itemValueCon} ${styles.itemValueGreen}`}
+                >
                   {data.amount || "₹1,29,800"}
                 </p>
               </div>
@@ -85,7 +94,9 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
               </div>
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>Payment Terms</p>
-                <p className={styles.itemValueCon}>{data.paymentTerms || "Net 30 Days"}</p>
+                <p className={styles.itemValueCon}>
+                  {data.paymentTerms || "Net 30 Days"}
+                </p>
               </div>
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>PO Reference</p>
@@ -95,7 +106,9 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
               </div>
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>GRN Reference</p>
-                <p className={`${styles.itemValueCon} ${styles.itemValueOrange}`}>
+                <p
+                  className={`${styles.itemValueCon} ${styles.itemValueOrange}`}
+                >
                   {data.grnReference || "GRN-2026-089"}
                 </p>
               </div>
@@ -111,7 +124,16 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
             </div>
             <span className={styles.statusSep}>|</span>
             <div className={styles.statusPill}>
-              <span className={styles.statusDotGreen} style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--themeColorDark, #28a745)", display: "inline-block" }} />
+              <span
+                className={styles.statusDotGreen}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--themeColorDark, #28a745)",
+                  display: "inline-block",
+                }}
+              />
               <span>Validation</span>
               <span className={styles.statusApprovedLabel}>Approved</span>
             </div>
@@ -131,25 +153,38 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
             <div className={styles.relatedDocsList}>
               <div className={styles.docItem}>
                 <div className={styles.docItemLeft}>
-                  <div className={`${styles.docIconWrap} ${styles.docIconWrapGreen}`}>
-                    <i className="pi pi-file" style={{ color: "var(--themeColorDark, #28a745)" }} />
+                  <div
+                    className={`${styles.docIconWrap} ${styles.docIconWrapGreen}`}
+                  >
+                    <i
+                      className="pi pi-file"
+                      style={{ color: "var(--themeColorDark, #28a745)" }}
+                    />
                   </div>
-                  <p className={styles.docLabel}>{data.poReference || "PO-2026-001"}</p>
+                  <p className={styles.docLabel}>
+                    {data.poReference || "PO-2026-001"}
+                  </p>
                 </div>
                 <i className={`pi pi-chevron-right ${styles.docArrow}`} />
               </div>
               <div className={styles.docItem}>
                 <div className={styles.docItemLeft}>
-                  <div className={`${styles.docIconWrap} ${styles.docIconWrapOrange}`}>
+                  <div
+                    className={`${styles.docIconWrap} ${styles.docIconWrapOrange}`}
+                  >
                     <i className="pi pi-box" style={{ color: "#e67e22" }} />
                   </div>
-                  <p className={styles.docLabel}>{data.grnReference || "GRN-2026-089"}</p>
+                  <p className={styles.docLabel}>
+                    {data.grnReference || "GRN-2026-089"}
+                  </p>
                 </div>
                 <i className={`pi pi-chevron-right ${styles.docArrow}`} />
               </div>
               <div className={styles.docItem}>
                 <div className={styles.docItemLeft}>
-                  <div className={`${styles.docIconWrap} ${styles.docIconWrapBlue}`}>
+                  <div
+                    className={`${styles.docIconWrap} ${styles.docIconWrapBlue}`}
+                  >
                     <i className="pi pi-file" style={{ color: "#3182ce" }} />
                   </div>
                   <p className={styles.docLabel}>{data.prId || "PR-001"}</p>

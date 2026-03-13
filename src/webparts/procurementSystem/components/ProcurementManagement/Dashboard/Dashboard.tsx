@@ -125,9 +125,9 @@ const Dashboard: React.FC = () => {
     try {
       const payload: any = {
         ItemId: selectedRow.item,
-        Quantity: selectedRow.quantity,
-        Price: selectedRow.price,
-        Total: selectedRow.total,
+        Quantity: selectedRow.quantity?.toString(),
+        Price: selectedRow.price?.toString(),
+        Total: selectedRow.total?.toString(),
         Date: selectedRow.date,
         Justification: selectedRow.justification,
         ActiveTab: "1",
@@ -368,7 +368,7 @@ const Dashboard: React.FC = () => {
               <Column field="status" header="Status" body={statusTemplate} />
               <Column field="date" header="Required Date" body={dateTemplate} />
               <Column
-                header="Actions"
+                header="Action"
                 body={actionTemplate}
                 style={{ width: "5rem" }}
               />
@@ -423,7 +423,7 @@ const Dashboard: React.FC = () => {
                     style={{ width: "100%" }}
                     onChange={(e: any) => onChangeHandler("item", e.value)}
                     filter
-                    showClear
+                    // showClear
                   />
                 </div>
                 <div className={styles.fields}>
@@ -437,7 +437,7 @@ const Dashboard: React.FC = () => {
                     style={{ width: "100%" }}
                     onChange={(e: any) => onChangeHandler("item", e.value)}
                     filter
-                    showClear
+                    // showClear
                     disabled
                   />
                 </div>
@@ -484,6 +484,7 @@ const Dashboard: React.FC = () => {
                   <Calendar
                     value={selectedRow.date ? new Date(selectedRow.date) : null}
                     dateFormat="dd/mm/yy"
+                    showIcon
                     style={{ width: "100%" }}
                     onChange={(e: any) =>
                       onChangeHandler(
