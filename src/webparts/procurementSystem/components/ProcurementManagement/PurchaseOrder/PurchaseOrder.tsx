@@ -195,6 +195,7 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 rel="noopener noreferrer"
                 download={"PO.docx"}
                 onClick={(e) => e.stopPropagation()}
+                style={{ textDecoration: "none" }}
               >
                 <button className={styles.btnOutline}>
                   <i className="pi pi-download" />

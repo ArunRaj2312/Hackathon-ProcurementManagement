@@ -37,6 +37,8 @@ const Dashboard = (props: any) => {
   const [data, setData] = useState<any[]>([]);
   const [isLoader, setIsLoader] = useState(false);
   const [userRole, setUserRole] = useState<string>("User");
+  const [activeTab, setActiveTab] = useState<string>("All");
+  const [searchText, setSearchText] = useState<string>("");
 
   const onChangeHandler = (key: string, value: string) => {
     let tempRow = { ...selectedRow };
@@ -94,6 +96,7 @@ const Dashboard = (props: any) => {
       console.error("Failed to load product options", err);
     }
   };
+
   const getApproverConfig = async () => {
     try {
       const res: any = await SPServices.SPReadItems({
@@ -112,11 +115,11 @@ const Dashboard = (props: any) => {
         setUserRole(res[0].Role);
       }
       await loadProducts();
-      console.log("Approver config data", res);
     } catch (err) {
       console.error("Error fetching approver config data", err);
     }
   };
+
   const onSubmit = async () => {
     let errorMsg = "";
     if (!selectedRow.item) errorMsg = "Item is required.";
@@ -157,7 +160,7 @@ const Dashboard = (props: any) => {
         ActiveTab: "1",
         Status: "In progress",
         AIOverview:
-          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s", // AI response
+          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
       };
       if (selectedRow?.id) {
         await SPServices.SPUpdateItem({
@@ -179,7 +182,7 @@ const Dashboard = (props: any) => {
     }
   };
 
-  const mandatorySymbol = () => <span style={{ color: "red" }}>*</span>;
+  // const mandatorySymbol = () => <span style={{ color: "red" }}>*</span>;
 
   // ====== Computed stats ======
   const totalPRs = data.length;
@@ -199,25 +202,80 @@ const Dashboard = (props: any) => {
     return d >= now && d <= endOfMonth;
   }).length;
 
+  // ====== Status Overview counts ======
+  const approvedCount = data.filter(
+    (r) => (r.status || "").toLowerCase() === "approved",
+  ).length;
+  const pendingCount = data.filter(
+    (r) => (r.status || "").toLowerCase() === "pending",
+  ).length;
+  const draftCount = data.filter(
+    (r) =>
+      (r.status || "").toLowerCase() === "draft" ||
+      (r.status || "").toLowerCase() === "in progress",
+  ).length;
+
+  // ====== Spend by category (derived from items) ======
+  const categorySpend: Record<string, number> = {};
+  data.forEach((row) => {
+    const cat = row.item || "Other";
+    categorySpend[cat] =
+      (categorySpend[cat] || 0) +
+      (Number(String(row.total).replace(/[₹,]/g, "")) || 0);
+  });
+  const categoryList = Object.entries(categorySpend)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+  const maxCatSpend = categoryList[0]?.[1] || 1;
+
+  const catColors = ["#e67e22", "#6c63ff", "#3182ce", "#e67e22", "#e53e3e"];
+
+  // ====== Filtered table data ======
+  const filteredData = data.filter((row) => {
+    const matchTab =
+      activeTab === "All" ||
+      (row.status || "").toLowerCase() === activeTab.toLowerCase();
+    const matchSearch =
+      !searchText ||
+      (row.prId || "").toLowerCase().includes(searchText.toLowerCase()) ||
+      (row.item || "").toLowerCase().includes(searchText.toLowerCase());
+    return matchTab && matchSearch;
+  });
+
   // ====== Column body templates ======
   const prIdTemplate = (rowData: any) => (
-    <span
-      className={styles.prIdCell}
-      onClick={() =>
-        navigate("/procurementmanagement", {
-          state: { selectedRow: rowData, id: rowData.id },
-        })
-      }
-    >
-      {"PR - " + rowData.id?.toString().padStart(4, "0")}
-    </span>
+    <div className={styles.prIdCellWrap}>
+      <span
+        className={styles.prIdDot}
+        style={{
+          background:
+            (rowData.status || "").toLowerCase() === "approved"
+              ? "#e67e22"
+              : (rowData.status || "").toLowerCase() === "pending"
+                ? "#e67e22"
+                : "#3182ce",
+        }}
+      />
+      <span
+        className={styles.prIdCell}
+        onClick={() =>
+          navigate("/procurementmanagement", {
+            state: { selectedRow: rowData, id: rowData.id },
+          })
+        }
+      >
+        {"PR-" + String(rowData.id || "").padStart(4, "0")}
+      </span>
+    </div>
   );
 
   const itemTemplate = (rowData: any) => (
     <div className={styles.itemCell}>
-      <i
-        className={`pi ${rowData.item?.toLowerCase().includes("laptop") ? "pi-desktop" : "pi-mobile"} ${styles.itemIcon}`}
-      />
+      <div className={styles.itemIconBox}>
+        <i
+          className={`pi ${rowData.item?.toLowerCase().includes("laptop") ? "pi-desktop" : "pi-mobile"}`}
+        />
+      </div>
       {rowData.item || "—"}
     </div>
   );
@@ -231,23 +289,24 @@ const Dashboard = (props: any) => {
   );
 
   const totalTemplate = (rowData: any) => (
-    <span style={{ fontWeight: 600 }}>
+    <span className={styles.totalCell}>
       ₹{Number(rowData.total).toLocaleString("en-IN") || "—"}
     </span>
   );
 
   const statusTemplate = (rowData: any) => {
-    const s = (rowData.status || "Active").toLowerCase();
+    const s = (rowData.status || "active").toLowerCase();
     const cls =
-      s === "active"
-        ? styles.statusActive
+      s === "approved"
+        ? styles.statusApproved
         : s === "pending"
           ? styles.statusPending
-          : s === "review"
-            ? styles.statusReview
+          : s === "draft"
+            ? styles.statusDraft
             : styles.statusDefault;
     return (
       <span className={`${styles.statusBadge} ${cls}`}>
+        <span className={styles.statusDotInner} />
         {rowData.status || "Active"}
       </span>
     );
@@ -261,15 +320,29 @@ const Dashboard = (props: any) => {
   );
 
   const actionTemplate = (rowData: any) => (
-    <div
-      className={styles.actionCell}
-      onClick={() =>
-        navigate("/procurementmanagement", {
-          state: { selectedRow: rowData, id: rowData.id },
-        })
-      }
-    >
-      <i className="pi pi-pencil" />
+    <div className={styles.actionCell}>
+      <button
+        className={styles.actionEditBtn}
+        onClick={() =>
+          navigate("/procurementmanagement", {
+            state: { selectedRow: rowData, id: rowData.id },
+          })
+        }
+        title="Edit"
+      >
+        <i className="pi pi-pencil" />
+      </button>
+      <button
+        className={styles.actionViewBtn}
+        onClick={() =>
+          navigate("/procurementmanagement", {
+            state: { selectedRow: rowData, id: rowData.id },
+          })
+        }
+        title="View"
+      >
+        <i className="pi pi-eye" />
+      </button>
     </div>
   );
 
@@ -289,250 +362,482 @@ const Dashboard = (props: any) => {
           {/* ===== PAGE HEADER ===== */}
           <div className={styles.pageHeader}>
             <div className={styles.pageHeaderLeft}>
-              <h3>Procurement System</h3>
-              <p>Manage all purchase requisitions</p>
+              <h2 className={styles.pageTitle}>Procurement</h2>
+              <p className={styles.pageSubtitle}>
+                {moment().format("MMMM YYYY")} · Purchase Requisitions
+              </p>
             </div>
-            {userRole === "User" && (
-              <div className={styles.pageHeaderRight}>
-                <Button
-                  label="Add New"
-                  icon="pi pi-plus"
-                  className="p-button-success"
-                  style={{
-                    borderRadius: 10,
-                    padding: "8px 16px",
-                    fontSize: 13,
-                  }}
+            <div className={styles.pageHeaderRight}>
+              <div className={styles.searchBox}>
+                <i
+                  className="pi pi-search"
+                  style={{ color: "#a0aab4", fontSize: 13 }}
+                />
+                <input
+                  className={styles.searchInput}
+                  placeholder="Search PRs..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+              </div>
+              <button className={styles.exportBtn} title="Export">
+                <i className="pi pi-download" />
+              </button>
+              {userRole === "User" && (
+                <button
+                  className={styles.newPrBtn}
                   onClick={() => {
                     setSelectedRow(newObj);
                     setVisible(true);
                   }}
-                />
-              </div>
-            )}
+                >
+                  + New PR
+                </button>
+              )}
+            </div>
           </div>
 
           {/* ===== STAT CARDS ===== */}
           <div className={styles.statCardsGrid}>
+            {/* Total PRs */}
             <div className={styles.statCard}>
-              <div
-                className={`${styles.statCardIconWrap} ${styles.statIconGreen}`}
-              >
-                📋
-              </div>
-              <div className={styles.statCardBody}>
-                <p className={styles.statCardLabel}>Total PRs</p>
+              <div className={styles.statCardContent}>
+                <p className={styles.statCardLabel}>TOTAL PRS</p>
                 <p className={styles.statCardValue}>{totalPRs}</p>
-                <p className={styles.statCardSub}>This period</p>
+                <p className={styles.statCardSub}>↑ This period</p>
+              </div>
+              <div
+                className={`${styles.statCardIcon} ${styles.statIconClipboard}`}
+              >
+                <i className="pi pi-clipboard" />
               </div>
             </div>
+            {/* Total Items */}
             <div className={styles.statCard}>
-              <div
-                className={`${styles.statCardIconWrap} ${styles.statIconBlue}`}
-              >
-                💻
-              </div>
-              <div className={styles.statCardBody}>
-                <p className={styles.statCardLabel}>Total Items</p>
+              <div className={styles.statCardContent}>
+                <p className={styles.statCardLabel}>TOTAL ITEMS</p>
                 <p className={styles.statCardValue}>{totalItems}</p>
                 <p className={styles.statCardSub}>Units ordered</p>
               </div>
-            </div>
-            <div className={styles.statCard}>
               <div
-                className={`${styles.statCardIconWrap} ${styles.statIconOrange}`}
+                className={`${styles.statCardIcon} ${styles.statIconDesktop}`}
               >
-                💰
+                <i className="pi pi-desktop" />
               </div>
-              <div className={styles.statCardBody}>
-                <p className={styles.statCardLabel}>Total Estimated</p>
-                <p className={styles.statCardValue} style={{ fontSize: 20 }}>
+            </div>
+            {/* Est. Value */}
+            <div className={styles.statCard}>
+              <div className={styles.statCardContent}>
+                <p className={styles.statCardLabel}>EST. VALUE</p>
+                <p className={styles.statCardValue} style={{ fontSize: 22 }}>
                   ₹{totalEstimated.toLocaleString("en-IN")}
                 </p>
-                <p className={styles.statCardSub}>Combined value</p>
+                <p className={styles.statCardSub}>Combined spend</p>
+              </div>
+              <div className={`${styles.statCardIcon} ${styles.statIconRupee}`}>
+                <i className="pi pi-indian-rupee" />
               </div>
             </div>
+            {/* Upcoming Due */}
             <div className={styles.statCard}>
-              <div
-                className={`${styles.statCardIconWrap} ${styles.statIconRed}`}
-              >
-                📅
-              </div>
-              <div className={styles.statCardBody}>
-                <p className={styles.statCardLabel}>Upcoming Due</p>
+              <div className={styles.statCardContent}>
+                <p className={styles.statCardLabel}>UPCOMING DUE</p>
                 <p className={styles.statCardValue}>{upcomingDue}</p>
                 <p className={styles.statCardSub}>In this month</p>
+              </div>
+              <div className={`${styles.statCardIcon} ${styles.statIconCal}`}>
+                <i className="pi pi-calendar" />
               </div>
             </div>
           </div>
 
-          {/* ===== TABLE CARD ===== */}
-          <div className={styles.tableContainer}>
-            <div className={styles.tableTopRow}>
-              <p className={styles.tableTitle}>
-                Purchase Requisitions
-                <span className={styles.recordsBadge}>
-                  {data.length} records
-                </span>
-              </p>
+          {/* ===== MAIN TWO-COLUMN LAYOUT ===== */}
+          <div className={styles.mainLayout}>
+            {/* LEFT: Table */}
+            <div className={styles.tableSection}>
+              <div className={styles.tableCard}>
+                {/* Table header */}
+                <div className={styles.tableTopRow}>
+                  <div className={styles.tableTitleRow}>
+                    <p className={styles.tableTitle}>Purchase Requisitions</p>
+                    <span className={styles.recordsBadge}>
+                      {filteredData.length} RECORD
+                      {filteredData.length !== 1 ? "S" : ""}
+                    </span>
+                  </div>
+                  <div className={styles.filterTabs}>
+                    {["All", "Approved", "Pending", "Draft"].map((tab) => (
+                      <button
+                        key={tab}
+                        className={`${styles.filterTab} ${activeTab === tab ? styles.filterTabActive : ""}`}
+                        onClick={() => setActiveTab(tab)}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* DataTable */}
+                <DataTable
+                  value={filteredData}
+                  responsiveLayout="scroll"
+                  className="p-datatable-sm"
+                  paginator={true}
+                  rows={10}
+                  paginatorTemplate="PrevPageLink PageLinks NextPageLink"
+                  paginatorClassName="custom-paginator"
+                  emptyMessage={
+                    <div className={styles.emptyState}>
+                      <i
+                        className="pi pi-inbox"
+                        style={{
+                          fontSize: 32,
+                          color: "#d1d5db",
+                          marginBottom: 8,
+                        }}
+                      />
+                      <p>No records found</p>
+                    </div>
+                  }
+                >
+                  <Column field="prId" header="PR ID" body={prIdTemplate} />
+                  <Column field="item" header="ITEM" body={itemTemplate} />
+                  <Column
+                    field="quantity"
+                    header="QTY"
+                    body={qtyTemplate}
+                    style={{ width: "6rem" }}
+                  />
+                  <Column
+                    field="price"
+                    header="UNIT PRICE"
+                    body={priceTemplate}
+                  />
+                  <Column field="total" header="TOTAL" body={totalTemplate} />
+                  <Column
+                    field="status"
+                    header="STATUS"
+                    body={statusTemplate}
+                  />
+                  <Column
+                    field="date"
+                    header="REQUIRED BY"
+                    body={dateTemplate}
+                  />
+                  <Column
+                    header="ACTIONS"
+                    body={actionTemplate}
+                    style={{ width: "7rem" }}
+                  />
+                </DataTable>
+              </div>
             </div>
-            <DataTable
-              value={data}
-              responsiveLayout="scroll"
-              className="p-datatable-sm"
-              paginator={data.length > 0}
-              rows={10}
-              paginatorTemplate="PrevPageLink PageLinks NextPageLink"
-              paginatorClassName="custom-paginator"
-            >
-              <Column field="prId" header="PR ID" body={prIdTemplate} />
-              <Column field="item" header="Item" body={itemTemplate} />
-              <Column field="quantity" header="Quantity" body={qtyTemplate} />
-              <Column
-                field="price"
-                header="Est. Unit Price"
-                body={priceTemplate}
-              />
-              <Column
-                field="total"
-                header="Total Estimated"
-                body={totalTemplate}
-              />
-              <Column field="status" header="Status" body={statusTemplate} />
-              <Column field="date" header="Required Date" body={dateTemplate} />
-              <Column
-                header="Action"
-                body={actionTemplate}
-                style={{ width: "5rem" }}
-              />
-            </DataTable>
+
+            {/* RIGHT: Sidebar */}
+            <div className={styles.sidebar}>
+              {/* Status Overview */}
+              <div className={styles.sideCard}>
+                <div className={styles.sideCardHeader}>
+                  <p className={styles.sideCardTitle}>Status Overview</p>
+                </div>
+                <div className={styles.statusOverviewList}>
+                  {[
+                    {
+                      label: "Approved",
+                      count: approvedCount,
+                      color: "#e67e22",
+                      bg: "#e8f5ec",
+                    },
+                    {
+                      label: "Pending",
+                      count: pendingCount,
+                      color: "#e67e22",
+                      bg: "#fff3e0",
+                    },
+                    {
+                      label: "Draft",
+                      count: draftCount,
+                      color: "#6a737d",
+                      bg: "#f0f2f4",
+                    },
+                  ].map((s) => (
+                    <div key={s.label} className={styles.statusOverviewRow}>
+                      <div className={styles.statusOverviewLeft}>
+                        <span
+                          className={styles.statusOverviewDot}
+                          style={{ background: s.color }}
+                        />
+                        <span className={styles.statusOverviewLabel}>
+                          {s.label}
+                        </span>
+                      </div>
+                      <span className={styles.statusOverviewCount}>
+                        {s.count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Suppliers */}
+              <div className={styles.sideCard}>
+                <div className={styles.sideCardHeader}>
+                  <p className={styles.sideCardTitle}>Top Suppliers</p>
+                </div>
+                <div className={styles.supplierList}>
+                  {[
+                    {
+                      name: "Dell Technologies",
+                      sub: "3 orders · Electronics",
+                      badge: "Active",
+                      badgeCls: styles.badgeActive,
+                      initial: "D",
+                      color: "#e67e22",
+                    },
+                    {
+                      name: "Lenovo India",
+                      sub: "1 order · Laptops",
+                      badge: "Active",
+                      badgeCls: styles.badgeActive,
+                      initial: "L",
+                      color: "#6c63ff",
+                    },
+                    {
+                      name: "Samsung B2B",
+                      sub: "2 orders · Devices",
+                      badge: "Pending",
+                      badgeCls: styles.badgePending,
+                      initial: "S",
+                      color: "#3182ce",
+                    },
+                  ].map((s) => (
+                    <div key={s.name} className={styles.supplierRow}>
+                      <div
+                        className={styles.supplierAvatar}
+                        style={{ background: s.color }}
+                      >
+                        {s.initial}
+                      </div>
+                      <div className={styles.supplierInfo}>
+                        <p className={styles.supplierName}>{s.name}</p>
+                        <p className={styles.supplierSub}>{s.sub}</p>
+                      </div>
+                      <span className={`${styles.supplierBadge} ${s.badgeCls}`}>
+                        {s.badge}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Spend by Category */}
+              <div className={styles.sideCard}>
+                <div className={styles.sideCardHeader}>
+                  <p className={styles.sideCardTitle}>Spend by Category</p>
+                </div>
+                <div className={styles.categoryList}>
+                  {categoryList.length > 0 ? (
+                    categoryList.map(([cat, amt], idx) => (
+                      <div key={cat} className={styles.categoryRow}>
+                        <div className={styles.categoryRowTop}>
+                          <div className={styles.categoryLeft}>
+                            <span
+                              className={styles.categoryDot}
+                              style={{
+                                background: catColors[idx % catColors.length],
+                              }}
+                            />
+                            <span className={styles.categoryName}>{cat}</span>
+                          </div>
+                          <span className={styles.categoryAmount}>
+                            ₹{amt.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+                        <div className={styles.categoryBar}>
+                          <div
+                            className={styles.categoryBarFill}
+                            style={{
+                              width: `${(amt / maxCatSpend) * 100}%`,
+                              background: catColors[idx % catColors.length],
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className={styles.noData}>No data yet</p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* ===== ADD/EDIT DIALOG ===== */}
           <Dialog
-            header="Purchase Request"
             visible={visible}
-            style={{ width: "40vw" }}
+            style={{ width: "45vw" }}
             onHide={() => setVisible(false)}
             draggable={false}
-            showCloseIcon={false}
-            footer={
-              <div className="flex justify-content-end gap-2">
-                <Button
-                  label="Close"
-                  icon="pi pi-times"
-                  className="p-button-secondary"
-                  style={{
-                    borderRadius: 10,
-                    padding: "8px 16px",
-                    fontSize: 13,
-                  }}
-                  onClick={() => setVisible(false)}
-                />
-                <Button
-                  label="Submit"
-                  icon="pi pi-check"
-                  className="p-button-success"
-                  onClick={onSubmit}
-                  style={{
-                    borderRadius: 10,
-                    padding: "8px 16px",
-                    fontSize: 13,
-                  }}
-                />
-              </div>
-            }
+            className="custom-pr-dialog"
+            showHeader={false}
           >
+            <div className={styles.dialogHeaderCustom}>
+              <div className={styles.dialogHeaderIcon}>
+                <i className="pi pi-shopping-cart" />
+              </div>
+              <div className={styles.dialogHeaderContent}>
+                <p className={styles.dialogHeaderTitle}>Purchase Request</p>
+                <p className={styles.dialogHeaderSub}>
+                  Create a new procurement requisition
+                </p>
+              </div>
+              <button
+                className={styles.dialogCloseBtn}
+                onClick={() => setVisible(false)}
+              >
+                <i className="pi pi-times" />
+              </button>
+            </div>
+
+            <div className={styles.sectionDivider}>ITEM INFORMATION</div>
+
             {selectedRow && (
-              <div className={styles.fieldsFlex}>
-                <div className={styles.fields}>
-                  <label>Item {mandatorySymbol()}</label>
+              <div className={styles.fieldsGrid}>
+                {/* Item */}
+                <div className={styles.fieldGroup}>
+                  <label>
+                    Item <span className={styles.reqStar}>*</span>
+                  </label>
                   <Dropdown
                     options={productOptions}
                     value={selectedRow.item}
                     optionLabel="name"
                     optionValue="value"
                     placeholder="Select item"
-                    style={{ width: "100%" }}
+                    className={styles.customInput}
                     onChange={(e: any) => onChangeHandler("item", e.value)}
                     filter
-                    // showClear
                   />
                 </div>
-                <div className={styles.fields}>
-                  <label>PR ID {mandatorySymbol()}</label>
+
+                {/* PR ID */}
+                <div className={styles.fieldGroup}>
+                  <label>
+                    PR ID <span className={styles.reqStar}>*</span>
+                  </label>
                   <Dropdown
                     options={productOptions}
-                    value={selectedRow.item}
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Select item"
-                    style={{ width: "100%" }}
-                    onChange={(e: any) => onChangeHandler("item", e.value)}
-                    filter
-                    // showClear
+                    value={selectedRow.item} // It looks like this uses a placeholder in the design
+                    placeholder="Auto-generate"
+                    className={styles.customInput}
                     disabled
                   />
                 </div>
-                <div className={styles.fields}>
-                  <label>Quantity {mandatorySymbol()}</label>
+
+                {/* Quantity */}
+                <div className={styles.fieldGroup}>
+                  <label>
+                    Quantity <span className={styles.reqStar}>*</span>
+                  </label>
                   <InputText
                     value={selectedRow.quantity}
-                    style={{ width: "100%" }}
+                    placeholder="e.g. 2"
+                    className={styles.customInput}
                     onChange={(e: any) =>
                       onChangeHandler("quantity", e.target.value)
                     }
                   />
                 </div>
-                <div className={styles.fields}>
-                  <label>Estimated Unit Price {mandatorySymbol()}</label>
-                  <InputText
-                    value={
-                      selectedRow.price
-                        ? String(selectedRow.price).replace("₹", "")
-                        : ""
-                    }
-                    style={{ width: "100%" }}
-                    onChange={(e: any) =>
-                      onChangeHandler("price", e.target.value)
-                    }
-                  />
+
+                {/* Estimated Unit Price */}
+                <div className={styles.fieldGroup}>
+                  <label>
+                    Estimated Unit Price{" "}
+                    <span className={styles.reqStar}>*</span>
+                  </label>
+                  <div className={styles.inputWithIcon}>
+                    <span className={styles.currencyPrefix}>₹</span>
+                    <InputText
+                      value={
+                        selectedRow.price
+                          ? String(selectedRow.price).replace("₹", "")
+                          : ""
+                      }
+                      placeholder="0.00"
+                      className={`${styles.customInput} ${styles.hasPrefix}`}
+                      onChange={(e: any) =>
+                        onChangeHandler("price", e.target.value)
+                      }
+                    />
+                    <i className={`pi pi-indian-rupee ${styles.rightIcon}`} />
+                  </div>
                 </div>
-                <div className={styles.fields}>
-                  <label>Total Estimated {mandatorySymbol()}</label>
-                  <InputText
-                    value={
-                      selectedRow.total
-                        ? String(selectedRow.total).replace("₹", "")
-                        : ""
-                    }
-                    style={{ width: "100%" }}
-                    onChange={(e: any) =>
-                      onChangeHandler("total", e.target.value)
-                    }
-                  />
+
+                {/* Total Estimated */}
+                <div className={styles.fieldGroup}>
+                  <label>
+                    Total Estimated <span className={styles.reqStar}>*</span>
+                    <span className={styles.autoBadge}>
+                      <i className="pi pi-bolt" style={{ fontSize: "8px" }} />{" "}
+                      Auto
+                    </span>
+                  </label>
+                  <div className={styles.inputWithIcon}>
+                    <span className={styles.currencyPrefix}>₹</span>
+                    <InputText
+                      value={
+                        selectedRow.total
+                          ? String(selectedRow.total).replace("₹", "")
+                          : ""
+                      }
+                      placeholder="0.00"
+                      disabled
+                      className={`${styles.customInput} ${styles.hasPrefix} ${styles.lockedInput}`}
+                      onChange={(e: any) =>
+                        onChangeHandler("total", e.target.value)
+                      }
+                    />
+                    <i
+                      className={`pi pi-lock ${styles.rightIcon} ${styles.rightIconLocked}`}
+                    />
+                  </div>
                 </div>
-                <div className={styles.fields}>
-                  <label>Required Date {mandatorySymbol()}</label>
-                  <Calendar
-                    value={selectedRow.date ? new Date(selectedRow.date) : null}
-                    dateFormat="dd/mm/yy"
-                    showIcon
-                    style={{ width: "100%" }}
-                    onChange={(e: any) =>
-                      onChangeHandler(
-                        "date",
-                        e.value?.toLocaleDateString() || "",
-                      )
-                    }
-                  />
+
+                {/* Required Date */}
+                <div className={styles.fieldGroup}>
+                  <label>
+                    Required Date <span className={styles.reqStar}>*</span>
+                  </label>
+                  <div className={styles.inputWithIcon}>
+                    <Calendar
+                      value={
+                        selectedRow.date ? new Date(selectedRow.date) : null
+                      }
+                      dateFormat="dd/mm/yy"
+                      placeholder="mm/dd/yyyy"
+                      className={styles.customInputCal}
+                      onChange={(e: any) =>
+                        onChangeHandler(
+                          "date",
+                          e.value?.toLocaleDateString() || "",
+                        )
+                      }
+                    />
+                    <i className={`pi pi-calendar ${styles.rightIcon}`} />
+                  </div>
                 </div>
-                <div className={styles.fields} style={{ gridColumn: "span 2" }}>
-                  <label>Justification {mandatorySymbol()}</label>
+
+                {/* Justification */}
+                <div className={`${styles.fieldGroup} ${styles.fullWidth}`}>
+                  <label>
+                    Justification <span className={styles.reqStar}>*</span>
+                  </label>
                   <InputTextarea
-                    rows={3}
+                    rows={4}
                     value={selectedRow.justification}
-                    style={{ width: "100%" }}
+                    placeholder="Briefly describe why this purchase is needed..."
+                    className={styles.customInput}
                     onChange={(e: any) =>
                       onChangeHandler("justification", e.target.value)
                     }
@@ -540,6 +845,21 @@ const Dashboard = (props: any) => {
                 </div>
               </div>
             )}
+
+            <div className={styles.dialogFooterCustom}>
+              <div className={styles.dialogFooterButtons}>
+                <Button
+                  label="✖ Cancel"
+                  className={styles.btnCancel}
+                  onClick={() => setVisible(false)}
+                />
+                <Button
+                  label="Submit Request →"
+                  className={styles.btnSubmit}
+                  onClick={onSubmit}
+                />
+              </div>
+            </div>
           </Dialog>
         </div>
       )}

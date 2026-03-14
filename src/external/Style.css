@@ -78,12 +78,12 @@ li {
   border: none;
 }
 .p-inputtext {
-  padding: 0.3rem 0.75rem;
+  padding: 0px;
 }
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight,
 .p-calendar .p-datepicker-trigger,
 .p-datepicker table td > span.p-highlight {
-  background-color: #218838;
+  background-color: #e67e22;
 }
 .p-inputtext:enabled:focus,
 .p-dropdown:not(.p-disabled).p-focus,
@@ -111,8 +111,8 @@ li {
   gap: 8px;
 }
 .p-paginator .p-highlight {
-  background-color: #e5f7e9;
-  color: #28a745 !important;
+  background-color: #fff0e6;
+  color: #e67e22 !important;
   font-weight: 600;
 }
 .p-button {
@@ -157,5 +157,5 @@ li {
   background-color: #e3ebff;
 }
 textarea {
-  resize: none;
+  resize: none !important;
 }

@@ -130,7 +130,7 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: "var(--themeColorDark, #28a745)",
+                  background: "var(--themeColorDark, #e67e22)",
                   display: "inline-block",
                 }}
               />
@@ -166,6 +166,7 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
                   rel="noopener noreferrer"
                   download={"Invoice.docx"}
                   onClick={(e) => e.stopPropagation()}
+                  style={{ textDecoration: "none" }}
                 >
                   <button className={styles.btnOutline}>
                     <i className="pi pi-download" />
@@ -186,7 +187,7 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
                   >
                     <i
                       className="pi pi-file"
-                      style={{ color: "var(--themeColorDark, #28a745)" }}
+                      style={{ color: "var(--themeColorDark, #e67e22)" }}
                     />
                   </div>
                   <p className={styles.docLabel}>
