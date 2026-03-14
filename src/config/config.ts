@@ -6,6 +6,8 @@ export const ENDPOINT = "https://yasazureopenai.openai.azure.com/";
 export const DEPLOYMENT_NAME = "gpt-4o-mini";
 export const newData: ProcurementFormData = {
   ActiveTab: 1,
+  AiOverview: "",
+  VendorAiOverview: "",
   basicInformation: {
     id: "",
     prId: "",
@@ -34,6 +36,7 @@ export const newData: ProcurementFormData = {
       qualityScore: "",
       aiRecommeded: false,
       selected: false,
+      vendorId: "",
       viewScoreBreakdown: {
         priceCompetitiveness: "",
         deliveryTimeline: "",
@@ -53,6 +56,7 @@ export const newData: ProcurementFormData = {
     comments: "",
   },
   purchaseOrder: {
+    docUrl: "",
     poNumber: "",
     issueDate: "",
     vendor: { name: "", code: "" },
@@ -68,6 +72,7 @@ export const newData: ProcurementFormData = {
     ],
   },
   invoice: {
+    docUrl: "",
     invoiceNumber: "",
     invoiceDate: "",
     vendor: "",

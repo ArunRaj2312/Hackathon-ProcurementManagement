@@ -3,21 +3,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import basicInfoStyles from "../BasicInformation/BasicInformation.module.scss";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import * as moment from "moment";
 // import { getBasicInfoAI } from "../../../../../services/aiService";
 
-const BasicInformation = (props: { data: any }): JSX.Element => {
+const BasicInformation = (props: {
+  data: any;
+  aiOverview?: string;
+}): JSX.Element => {
   const data = props.data || {};
 
-  const [aiOverview, setAiOverview] = useState<string>(
-    "Analyzing request with AI...",
-  );
-  console.log("aiOverview", aiOverview);
+  // const [aiOverview, setAiOverview] = useState<string>(
+  //   "Analyzing request with AI...",
+  // );
+  // console.log("aiOverview", aiOverview);
 
-  useEffect(() => {
-    setAiOverview("");
-  }, []);
+  // useEffect(() => {
+  //   setAiOverview("");
+  // }, []);
   // useEffect(() => {
   //   const loadAI = async (): Promise<void> => {
   //     const response = await getBasicInfoAI(props.data);
@@ -196,8 +199,8 @@ const BasicInformation = (props: { data: any }): JSX.Element => {
           </p>
         </div>
         <div className={basicInfoStyles.aiContentCon}>
-          {aiOverview ? (
-            aiOverview
+          {props.aiOverview ? (
+            props.aiOverview
               .split("\n")
               .map((line, index) => <p key={index}>{line}</p>)
           ) : (

@@ -29,9 +29,7 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
             <div className={styles.poTop}>
               <div className={styles.poNumberBlock}>
                 <p className={styles.fieldLabel}>Purchase Order Number</p>
-                <p className={styles.poNumber}>
-                  {data.poNumber || "N/A"}
-                </p>
+                <p className={styles.poNumber}>{data.poNumber || "N/A"}</p>
               </div>
               <div className={styles.issueDateBlock}>
                 <p className={styles.fieldLabel}>Issue Date</p>
@@ -78,12 +76,14 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                   <p className={styles.itemLabelCon}>Address</p>
                   <p className={styles.itemValueCon}>
                     {data.vendor?.address
-                      ? data.vendor.address.split("\n").map((line: string, i: number) => (
-                          <React.Fragment key={i}>
-                            {line}
-                            <br />
-                          </React.Fragment>
-                        ))
+                      ? data.vendor.address
+                          .split("\n")
+                          .map((line: string, i: number) => (
+                            <React.Fragment key={i}>
+                              {line}
+                              <br />
+                            </React.Fragment>
+                          ))
                       : "N/A"}
                   </p>
                 </div>
@@ -113,7 +113,7 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 <p className={styles.lineItemsTitle}>Line Items</p>
               </div>
               <span className={styles.lineItemCount}>
-                {lineItems.length} item{lineItems.length !== 1 ? 's' : ''}
+                {lineItems.length} item{lineItems.length !== 1 ? "s" : ""}
               </span>
             </div>
 
@@ -165,7 +165,9 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
             {/* Grand Total */}
             <div className={styles.totalAmountRow}>
               <p className={styles.totalAmountLabel}>Total Amount</p>
-              <p className={styles.totalAmountValue}>{data.totalAmount || "0"}</p>
+              <p className={styles.totalAmountValue}>
+                {data.totalAmount || "0"}
+              </p>
             </div>
           </div>
         </div>
@@ -187,10 +189,18 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 <i className="pi pi-send" />
                 Email Vendor
               </button> */}
-              <button className={styles.btnOutline}>
-                <i className="pi pi-download" />
-                Download Copy
-              </button>
+              <a
+                href={data.docUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                download={"PO.docx"}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button className={styles.btnOutline}>
+                  <i className="pi pi-download" />
+                  Download Copy
+                </button>
+              </a>
             </div>
           </div>
 
@@ -233,7 +243,9 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
               </div>
               <div className={styles.summaryRow}>
                 <p className={styles.summaryLabel}>Total Amount</p>
-                <p className={styles.summaryValueGreen}>{data.totalAmount || "0"}</p>
+                <p className={styles.summaryValueGreen}>
+                  {data.totalAmount || "0"}
+                </p>
               </div>
             </div>
           </div>
