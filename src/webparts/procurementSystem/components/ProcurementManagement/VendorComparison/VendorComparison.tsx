@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import vendorStyles from "../VendorComparison/VendorComparison.module.scss";
 // import { getVendorComparisonAI } from "../../../../../services/aiService";
 
@@ -10,21 +10,22 @@ const VendorComparison = (props: {
   data?: any;
   activeTab: Number;
   onDataChange?: (data: any) => void;
+  aiOverview?: string;
 }) => {
   // const [openVendor, setOpenVendor] = useState<number | null>(null);
-  const [aiOverview, setAiOverview] = useState<string>(
-    "Analyzing vendors with AI...",
-  );
-  console.log("aiOverview", aiOverview);
+  // const [aiOverview, setAiOverview] = useState<string>(
+  //   "Analyzing vendors with AI...",
+  // );
+  // console.log("aiOverview", aiOverview);
 
   // const handleToggle = (id: number, e: React.MouseEvent) => {
   //   e.stopPropagation();
   //   setOpenVendor((prev) => (prev === id ? null : id));
   // };
 
-  useEffect(() => {
-    setAiOverview("");
-  }, []);
+  // useEffect(() => {
+  //   setAiOverview("");
+  // }, []);
   // useEffect(() => {
   //   const loadAI = async () => {
   //     const result = await getVendorComparisonAI(props.data?.vendors);
@@ -312,8 +313,8 @@ const VendorComparison = (props: {
             </p>
           </div>
           <div className={vendorStyles.aiContentCon}>
-            {aiOverview ? (
-              aiOverview
+            {props.aiOverview ? (
+              props.aiOverview
                 .split("\n")
                 .map((line, index) => <p key={index}>{line}</p>)
             ) : (

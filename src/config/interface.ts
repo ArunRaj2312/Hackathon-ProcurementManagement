@@ -14,6 +14,7 @@ export interface Vendor {
   qualityScore: string;
   aiRecommeded: boolean;
   selected: boolean;
+  vendorId: string;
   viewScoreBreakdown: ViewScoreBreakdown;
 }
 
@@ -59,6 +60,7 @@ export interface PurchaseOrderLineItem {
 }
 
 export interface PurchaseOrder {
+  docUrl: string;
   poNumber: string;
   prId?: string;
   issueDate: string;
@@ -79,6 +81,7 @@ export interface PurchaseOrder {
 }
 
 export interface Invoice {
+  docUrl: string;
   invoiceNumber: string;
   invoiceDate: string;
   vendor: string;
@@ -90,6 +93,8 @@ export interface Invoice {
 
 export interface ProcurementFormData {
   ActiveTab: number;
+  AiOverview: string;
+  VendorAiOverview: string;
   basicInformation: BasicInformation;
   vendorComparison: VendorComparison;
   approval: Approval;

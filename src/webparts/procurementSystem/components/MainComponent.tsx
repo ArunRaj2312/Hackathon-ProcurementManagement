@@ -12,7 +12,7 @@ const MainComponent: React.FC<IMainComponentProps> = ({ context }) => {
     <HashRouter>
       <div>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard context={context} />} />
           <Route
             path="/procurementmanagement"
             element={<ProcurementManagement context={context} />}

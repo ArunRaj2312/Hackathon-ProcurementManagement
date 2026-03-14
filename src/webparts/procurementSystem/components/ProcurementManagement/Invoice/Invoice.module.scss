@@ -3,9 +3,67 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
+/* ===== Actions Card ===== */
+.actionsCard {
+  background: #ffffff;
+  border: 1px solid #eaecef;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.actionsCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0f2f4;
+  background: #fafbfc;
+}
+
+.actionsIconWrap {
+  font-size: 16px;
+}
+
+.actionsTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6a737d;
+}
+
+.actionsBody {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btnOutline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #4a5568;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: #c3e6cb;
+  }
+}
 /* ===== Validation Status Banner ===== */
 .validationBanner {
   background: #ffffff;
@@ -183,7 +241,7 @@
   color: #a0aab4;
 
   &::before {
-    content: '';
+    content: "";
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -344,8 +402,12 @@
   cursor: pointer;
   transition: background 0.15s;
 
-  &:last-child { border-bottom: none; }
-  &:hover { background: #fafbfc; }
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: #fafbfc;
+  }
 }
 
 .docItemLeft {
@@ -364,9 +426,15 @@
   font-size: 14px;
 }
 
-.docIconWrapGreen { background: #e8f5ec; }
-.docIconWrapOrange { background: #fff3e0; }
-.docIconWrapBlue { background: #e8f0fe; }
+.docIconWrapGreen {
+  background: #e8f5ec;
+}
+.docIconWrapOrange {
+  background: #fff3e0;
+}
+.docIconWrapBlue {
+  background: #e8f0fe;
+}
 
 .docLabel {
   font-size: 13px;

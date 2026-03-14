@@ -146,7 +146,35 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
         {/* RIGHT: Related Documents */}
         <div className={styles.rightCol}>
           <div className={styles.relatedDocsCard}>
-            <div className={styles.relatedDocsHeader}>
+            <div className={styles.actionsCard}>
+              <div className={styles.actionsCardHeader}>
+                <span className={styles.actionsIconWrap}>⚡</span>
+                <p className={styles.actionsTitle}>Actions</p>
+              </div>
+              <div className={styles.actionsBody}>
+                {/* <button className={styles.btnPrimary}>
+                <i className="pi pi-file-pdf" />
+                Generate PDF
+              </button>
+              <button className={styles.btnOutline}>
+                <i className="pi pi-send" />
+                Email Vendor
+              </button> */}
+                <a
+                  href={data.docUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download={"Invoice.docx"}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button className={styles.btnOutline}>
+                    <i className="pi pi-download" />
+                    Download Copy
+                  </button>
+                </a>
+              </div>
+            </div>
+            {/* <div className={styles.relatedDocsHeader}>
               <span className={styles.relatedDocsIconWrap}>🔗</span>
               <p className={styles.relatedDocsTitle}>Related Documents</p>
             </div>
@@ -191,7 +219,7 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
                 </div>
                 <i className={`pi pi-chevron-right ${styles.docArrow}`} />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

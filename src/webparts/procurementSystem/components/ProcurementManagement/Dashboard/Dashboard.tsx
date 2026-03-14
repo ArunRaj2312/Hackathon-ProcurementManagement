@@ -15,9 +15,10 @@ import MainLoader from "../../Loader/MainLoader";
 import * as moment from "moment";
 import { useNavigate } from "react-router-dom";
 
-const Dashboard: React.FC = () => {
+const Dashboard = (props: any) => {
   const navigate = useNavigate();
   const toast = useRef<Toast | null>(null);
+  let loggedInUserEmail = props.context._pageContext._user.email;
 
   const newObj = {
     id: null,
@@ -35,6 +36,7 @@ const Dashboard: React.FC = () => {
   const [productOptions, setProductOptions] = useState<any[]>([]);
   const [data, setData] = useState<any[]>([]);
   const [isLoader, setIsLoader] = useState(false);
+  const [userRole, setUserRole] = useState<string>("User");
 
   const onChangeHandler = (key: string, value: string) => {
     let tempRow = { ...selectedRow };
@@ -92,7 +94,29 @@ const Dashboard: React.FC = () => {
       console.error("Failed to load product options", err);
     }
   };
-
+  const getApproverConfig = async () => {
+    try {
+      const res: any = await SPServices.SPReadItems({
+        Listname: "ApproverConfig",
+        Select: "*,Approver/Title",
+        Expand: "Approver",
+        Filter: [
+          {
+            FilterKey: "Approver/EMail",
+            Operator: "eq",
+            FilterValue: loggedInUserEmail,
+          },
+        ],
+      });
+      if (res && res.length > 0) {
+        setUserRole(res[0].Role);
+      }
+      await loadProducts();
+      console.log("Approver config data", res);
+    } catch (err) {
+      console.error("Error fetching approver config data", err);
+    }
+  };
   const onSubmit = async () => {
     let errorMsg = "";
     if (!selectedRow.item) errorMsg = "Item is required.";
@@ -131,6 +155,9 @@ const Dashboard: React.FC = () => {
         Date: selectedRow.date,
         Justification: selectedRow.justification,
         ActiveTab: "1",
+        Status: "In progress",
+        AIOverview:
+          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s", // AI response
       };
       if (selectedRow?.id) {
         await SPServices.SPUpdateItem({
@@ -153,11 +180,6 @@ const Dashboard: React.FC = () => {
   };
 
   const mandatorySymbol = () => <span style={{ color: "red" }}>*</span>;
-
-  useEffect(() => {
-    setIsLoader(true);
-    void loadProducts();
-  }, []);
 
   // ====== Computed stats ======
   const totalPRs = data.length;
@@ -251,6 +273,11 @@ const Dashboard: React.FC = () => {
     </div>
   );
 
+  useEffect(() => {
+    setIsLoader(true);
+    void getApproverConfig();
+  }, []);
+
   return (
     <>
       {isLoader ? (
@@ -265,18 +292,24 @@ const Dashboard: React.FC = () => {
               <h3>Procurement System</h3>
               <p>Manage all purchase requisitions</p>
             </div>
-            <div className={styles.pageHeaderRight}>
-              <Button
-                label="Add New"
-                icon="pi pi-plus"
-                className="p-button-success"
-                style={{ borderRadius: 10, padding: "8px 16px", fontSize: 13 }}
-                onClick={() => {
-                  setSelectedRow(newObj);
-                  setVisible(true);
-                }}
-              />
-            </div>
+            {userRole === "User" && (
+              <div className={styles.pageHeaderRight}>
+                <Button
+                  label="Add New"
+                  icon="pi pi-plus"
+                  className="p-button-success"
+                  style={{
+                    borderRadius: 10,
+                    padding: "8px 16px",
+                    fontSize: 13,
+                  }}
+                  onClick={() => {
+                    setSelectedRow(newObj);
+                    setVisible(true);
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* ===== STAT CARDS ===== */}
@@ -347,7 +380,7 @@ const Dashboard: React.FC = () => {
               value={data}
               responsiveLayout="scroll"
               className="p-datatable-sm"
-              paginator
+              paginator={data.length > 0}
               rows={10}
               paginatorTemplate="PrevPageLink PageLinks NextPageLink"
               paginatorClassName="custom-paginator"

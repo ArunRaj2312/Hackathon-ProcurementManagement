@@ -67,6 +67,13 @@ const ProcurementSystem = (props: any) => {
   const sendPO = async () => {
     try {
       setIsLoader(true);
+      await SPServices.SPAddItem({
+        Listname: "InvoiceMapping",
+        RequestJSON: {
+          PRIdId: formData.basicInformation.id,
+          VendorId: formData.approval.selectedVendor.vendorId,
+        },
+      });
       await SPServices.SPUpdateItem({
         Listname: "ProcurementDetails",
         ID: formData.basicInformation.id,
@@ -118,6 +125,7 @@ const ProcurementSystem = (props: any) => {
             RequestJSON: {
               PRIdId: formData.basicInformation.id,
               VendorId: sel.id,
+              AIRecommended: false, //AI response
             },
           });
           if (i === selected.length - 1) {
@@ -126,6 +134,8 @@ const ProcurementSystem = (props: any) => {
               ID: formData.basicInformation.id,
               RequestJSON: {
                 ActiveTab: 2,
+                VendorAIOverview:
+                  "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s", // AI response
               },
             });
             setIsLoader(false);
@@ -271,26 +281,26 @@ const ProcurementSystem = (props: any) => {
   };
   console.log("formda", formData);
 
-  // const getDocuments = async (params: { Listname: string; ID: number }) => {
-  //   const item: any = await sp.web.lists
-  //     .getByTitle(params.Listname)
-  //     .items.getById(params.ID);
+  const getDocuments = async (params: { Listname: string; ID: number }) => {
+    const item: any = await sp.web.lists
+      .getByTitle(params.Listname)
+      .items.getById(params.ID);
 
-  //   const attach: any = await item.attachmentFiles();
+    const attach: any = await item.attachmentFiles();
 
-  //   let MasBills: any[] = [];
+    let MasBills: any[] = [];
 
-  //   attach.forEach((item: any) => {
-  //     MasBills.push({
-  //       name: item.FileName,
-  //       content: item.ServerRelativeUrl,
-  //       type: "Inlist",
-  //       size: null,
-  //     });
-  //   });
+    attach.forEach((item: any) => {
+      MasBills.push({
+        name: item.FileName,
+        content: item.ServerRelativeUrl,
+        type: "Inlist",
+        size: null,
+      });
+    });
 
-  //   return MasBills;
-  // };
+    return MasBills;
+  };
 
   const getProcurementData = async () => {
     try {
@@ -345,8 +355,16 @@ const ProcurementSystem = (props: any) => {
       const formatCurrency = (val: number) =>
         `₹ ${val.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
+      let documents = await getDocuments({
+        Listname: "ProcurementDetails",
+        ID: res.Id,
+      });
+      console.log("documents", documents);
+
       setFormData({
         ActiveTab: res.ActiveTab || 1,
+        AiOverview: res.AIOverview || "",
+        VendorAiOverview: res.VendorAIOverview || "",
         basicInformation: {
           id: res.Id,
           prId: res.Item?.PRId || "",
@@ -375,6 +393,7 @@ const ProcurementSystem = (props: any) => {
             qualityScore: "",
             aiRecommeded: false,
             selected: false,
+            vendorId: "",
             viewScoreBreakdown: {
               priceCompetitiveness: "",
               deliveryTimeline: "",
@@ -394,6 +413,10 @@ const ProcurementSystem = (props: any) => {
           comments: res.Comments || "",
         },
         purchaseOrder: {
+          docUrl:
+            documents.length > 0
+              ? documents.find((_v) => _v.name === "PO.docx")?.content || ""
+              : "",
           poNumber: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(res.Id)).slice(-3) : "001"}`,
           prId: res.Item?.PRId || "N/A",
           issueDate: new Date().toLocaleDateString("en-GB"),
@@ -422,6 +445,11 @@ const ProcurementSystem = (props: any) => {
           totalAmount: formatCurrency(totalAmountNum),
         },
         invoice: {
+          docUrl:
+            documents.length > 0
+              ? documents.find((_v) => _v.name === "Invoice.docx")?.content ||
+                ""
+              : "",
           invoiceNumber: `INV-V-${new Date().getFullYear()}-${res.Id}`,
           invoiceDate: new Date().toLocaleDateString("en-GB"),
           vendor: selectedVendorInfo?.Title || "",
@@ -609,13 +637,17 @@ const ProcurementSystem = (props: any) => {
         {/* Scrollable step content */}
         <div className={procurementSysStyles.stepContent}>
           {selectedStepperVersionId === 1 && (
-            <BasicInformation data={formData.basicInformation} />
+            <BasicInformation
+              data={formData.basicInformation}
+              aiOverview={formData.AiOverview}
+            />
           )}
           {selectedStepperVersionId === 2 && (
             <VendorComparison
               data={formData.vendorComparison}
               activeTab={formData.ActiveTab}
               onDataChange={setFormData}
+              aiOverview={formData.VendorAiOverview}
             />
           )}
           {selectedStepperVersionId === 3 && (
@@ -645,7 +677,6 @@ const ProcurementSystem = (props: any) => {
             {selectedStepperVersionId > 1 && (
               <Button
                 label="Previous"
-                icon="pi pi-arrow-left"
                 className="p-button-secondary"
                 style={{
                   borderRadius: 10,
