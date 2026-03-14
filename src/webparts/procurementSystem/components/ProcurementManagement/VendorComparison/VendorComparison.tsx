@@ -66,10 +66,6 @@ const VendorComparison = (props: {
               </p>
             </div>
           </div>
-          <div className={vendorStyles.aiPoweredBadge}>
-            <i className="pi pi-plus" />
-            AI Powered
-          </div>
         </div>
 
         {/* ===== 2x2 VENDOR GRID ===== */}
@@ -309,7 +305,7 @@ const VendorComparison = (props: {
           <div className={vendorStyles.aiOverviewLabelCon}>
             <p className={vendorStyles.labelStyle}>
               <i className={`${vendorStyles.aiIconStyle} pi pi-sparkles`} />
-              AI Overview
+              AI Suggestions
             </p>
           </div>
           <div className={vendorStyles.aiContentCon}>

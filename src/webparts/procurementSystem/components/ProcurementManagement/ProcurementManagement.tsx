@@ -574,36 +574,6 @@ const ProcurementSystem = (props: any) => {
             })}
           </div>
         </div>
-
-        {/* Bottom meta info */}
-        <div className={procurementSysStyles.sidebarMeta}>
-          <div className={procurementSysStyles.metaRow}>
-            <span>PR ID</span>
-            <span>{formData.basicInformation.prId || "—"}</span>
-          </div>
-          <div className={procurementSysStyles.metaRow}>
-            <span>Created</span>
-            <span>
-              {formData.basicInformation.requesterRequiredDate
-                ? new Date(
-                    formData.basicInformation.requesterRequiredDate,
-                  ).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })
-                : "—"}
-            </span>
-          </div>
-          <div className={procurementSysStyles.metaRow}>
-            <span>Step</span>
-            <span>{selectedStepperVersionId} of 5</span>
-          </div>
-          <div className={procurementSysStyles.metaRow}>
-            <span>Status</span>
-            <span className={procurementSysStyles.metaStatus}>Draft</span>
-          </div>
-        </div>
       </div>
 
       {/* RIGHT CONTENT PANEL */}
@@ -668,38 +638,47 @@ const ProcurementSystem = (props: any) => {
 
         {/* FOOTER */}
         <div className={procurementSysStyles.footer}>
-          <span className={procurementSysStyles.footerStepLabel}>
+          {/* <span className={procurementSysStyles.footerStepLabel}>
             Step <strong>{selectedStepperVersionId}</strong> of{" "}
-            <strong>5</strong> ·{" "}
-            {stepperArr.find((e) => e.id === selectedStepperVersionId)?.title}
-          </span>
+            <strong>5</strong>
+          </span> */}
           <div className={procurementSysStyles.footerActions}>
             {selectedStepperVersionId > 1 && (
               <Button
                 label="Previous"
-                className="p-button-secondary"
-                style={{
-                  borderRadius: 10,
-                  padding: "8px 16px",
-                  fontSize: 13,
-                }}
+                className={procurementSysStyles.btnCancel}
                 onClick={() => setselectedStepperVersionId((prev) => prev - 1)}
               />
             )}
             <Button
               label="✖ Cancel"
-              // icon="pi pi-times"
-              className="p-button-secondary"
-              style={{
-                borderRadius: 10,
-                padding: "8px 16px",
-                fontSize: 13,
-              }}
+              // className="p-button-secondary"
+              className={procurementSysStyles.btnCancel}
               onClick={() => {
                 navigate("/");
                 setselectedStepperVersionId(1);
               }}
             />
+            {formData.ActiveTab === 1 && selectedStepperVersionId === 1 && (
+              <Button
+                label="Save Draft"
+                icon="pi pi-save"
+                className="p-button-secondary"
+                style={{
+                  borderRadius: 10,
+                  padding: "8px 16px",
+                  fontSize: 13,
+                  background: "#ffffff",
+                  border: "1px solid #ffd8b8",
+                  color: "#e67e22",
+                  fontWeight: 600,
+                }}
+                onClick={() => {
+                  /* Optional Save Draft Logic */
+                  navigate("/");
+                }}
+              />
+            )}
             {formData.ActiveTab === 1 && selectedStepperVersionId === 1 ? (
               <Button
                 label="Proceed to RFQ →"
@@ -708,18 +687,23 @@ const ProcurementSystem = (props: any) => {
                   borderRadius: 10,
                   padding: "8px 16px",
                   fontSize: 13,
+                  background: "#e67e22",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(230,126,34,0.25)",
                 }}
                 onClick={async () => setVendorDialogVisible(true)}
               />
             ) : formData.ActiveTab === 2 && selectedStepperVersionId === 2 ? (
               <Button
                 label="Submit →"
-                // icon="pi pi-check"
                 className="p-button-success"
                 style={{
                   borderRadius: 10,
                   padding: "8px 16px",
                   fontSize: 13,
+                  background: "#e67e22",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(230,126,34,0.25)",
                 }}
                 onClick={async () => {
                   if (
@@ -737,12 +721,14 @@ const ProcurementSystem = (props: any) => {
               <>
                 <Button
                   label="✔ Approve"
-                  // icon="pi pi-check"
                   className="p-button-success"
                   style={{
                     borderRadius: 10,
                     padding: "8px 16px",
                     fontSize: 13,
+                    background: "#e67e22",
+                    border: "none",
+                    boxShadow: "0 2px 8px rgba(230,126,34,0.25)",
                   }}
                   onClick={async () => {
                     if (formData.approval.comments.trim()) {
@@ -769,12 +755,14 @@ const ProcurementSystem = (props: any) => {
             ) : formData.ActiveTab === 4 && selectedStepperVersionId === 4 ? (
               <Button
                 label="Send PO →"
-                // icon="pi pi-check"
                 className="p-button-success"
                 style={{
                   borderRadius: 10,
                   padding: "8px 16px",
                   fontSize: 13,
+                  background: "#e67e22",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(230,126,34,0.25)",
                 }}
                 onClick={async () => {
                   await sendPO();
@@ -789,6 +777,9 @@ const ProcurementSystem = (props: any) => {
                   borderRadius: 10,
                   padding: "8px 16px",
                   fontSize: 13,
+                  background: "#e67e22",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(230,126,34,0.25)",
                 }}
                 onClick={() => setselectedStepperVersionId((prev) => prev + 1)}
               />

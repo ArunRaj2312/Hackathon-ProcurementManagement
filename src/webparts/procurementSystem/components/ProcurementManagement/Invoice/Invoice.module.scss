@@ -86,7 +86,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #e8f5ec;
+  background: #fff0e6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,7 +97,7 @@
   margin: 0 0 2px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
 }
 
 .bannerSub {
@@ -107,9 +107,9 @@
 }
 
 .validatedBadge {
-  background: #e8f5ec;
-  color: var(--themeColorDark, #28a745);
-  border: 1px solid #c3e6cb;
+  background: #fff0e6;
+  color: var(--themeColorDark, #e67e22);
+  border: 1px solid #fff0e6;
   border-radius: 20px;
   padding: 4px 14px;
   font-size: 11px;
@@ -211,7 +211,7 @@
 .invoiceNumber {
   font-size: 20px;
   font-weight: 800;
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
   margin: 0;
 }
 
@@ -284,7 +284,7 @@
 }
 
 .itemValueGreen {
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
   font-weight: 700;
   font-size: 15px;
 }
@@ -325,7 +325,7 @@
 }
 
 .statusDotGreen {
-  background: var(--themeColorDark, #28a745);
+  background: var(--themeColorDark, #e67e22);
 }
 
 .statusPendingLabel {
@@ -335,7 +335,7 @@
 
 .statusApprovedLabel {
   font-weight: 700;
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
 }
 
 .statusSep {
@@ -376,7 +376,7 @@
 
 .relatedDocsIconWrap {
   font-size: 16px;
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
 }
 
 .relatedDocsTitle {

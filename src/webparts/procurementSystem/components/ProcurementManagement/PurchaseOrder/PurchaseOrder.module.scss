@@ -104,7 +104,7 @@
 .poNumber {
   font-size: 20px;
   font-weight: 800;
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
   margin: 0;
 }
 
@@ -171,7 +171,7 @@
 }
 
 .itemValueGreen {
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
 }
 
 /* ===== Line Items Card ===== */
@@ -306,7 +306,7 @@
 
 /* Grand total row */
 .totalAmountRow {
-  background: var(--themeColorDark, #28a745);
+  background: var(--themeColorDark, #e67e22);
   margin: 0 -0px;
   padding: 14px 20px;
   display: flex;
@@ -382,7 +382,7 @@
   padding: 10px 0;
   border-radius: 10px;
   border: none;
-  background: var(--themeColorDark, #28a745);
+  background: var(--themeColorDark, #e67e22);
   color: #ffffff;
   font-size: 13px;
   font-weight: 600;
@@ -478,13 +478,13 @@
 .summaryValueGreen {
   font-size: 16px;
   font-weight: 800;
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
   margin: 0;
 }
 
 .summaryPoNumber {
   font-weight: 700;
-  color: var(--themeColorDark, #28a745);
+  color: var(--themeColorDark, #e67e22);
   font-size: 13px;
   margin: 0;
 }

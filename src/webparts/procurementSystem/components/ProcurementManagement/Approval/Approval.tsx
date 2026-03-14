@@ -164,7 +164,7 @@ const Approval: React.FC<{
               <p
                 className={styles.summaryValue}
                 style={{
-                  color: "var(--themeColorDark, #28a745)",
+                  color: "var(--themeColorDark, #e67e22)",
                   fontWeight: 700,
                 }}
               >
