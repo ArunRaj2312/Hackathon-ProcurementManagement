@@ -54,7 +54,7 @@ const BasicInformation = (props: {
           <div
             className={`${basicInfoStyles.summaryCardIconBox} ${basicInfoStyles.summaryCardIconBoxYellow}`}
           >
-            <i className="pi pi-indian-rupee" />
+            <i className="pi pi-dollar" />
           </div>
           <div className={basicInfoStyles.summaryCardContent}>
             <p className={basicInfoStyles.summaryCardLabel}>Total Estimated</p>
@@ -62,12 +62,12 @@ const BasicInformation = (props: {
               className={`${basicInfoStyles.summaryCardValue} ${basicInfoStyles.summaryCardValueOrange}`}
             >
               {data?.totalEstimated
-                ? `₹${Number(data.totalEstimated).toLocaleString("en-IN")}`
+                ? `$${Number(data.totalEstimated).toLocaleString("en-US")}`
                 : "—"}
             </p>
             <p className={basicInfoStyles.summaryCardSub}>
               {data?.estimatedUnitPrice
-                ? `@ ₹${Number(data.estimatedUnitPrice).toLocaleString("en-IN")} per unit`
+                ? `@ $${Number(data.estimatedUnitPrice).toLocaleString("en-US")} per unit`
                 : ""}
             </p>
           </div>
@@ -107,7 +107,7 @@ const BasicInformation = (props: {
             <p className={basicInfoStyles.fieldLabel}>Unit Price</p>
             <p className={basicInfoStyles.fieldValue}>
               {data?.estimatedUnitPrice
-                ? `₹${Number(data.estimatedUnitPrice).toLocaleString("en-IN")}`
+                ? `$${Number(data.estimatedUnitPrice).toLocaleString("en-US")}`
                 : "—"}
             </p>
           </div>
@@ -119,7 +119,7 @@ const BasicInformation = (props: {
               className={`${basicInfoStyles.fieldValue} ${basicInfoStyles.fieldValueGreen}`}
             >
               {data?.totalEstimated
-                ? `₹${Number(data.totalEstimated).toLocaleString("en-IN")}`
+                ? `$${Number(data.totalEstimated).toLocaleString("en-US")}`
                 : "—"}
             </p>
           </div>

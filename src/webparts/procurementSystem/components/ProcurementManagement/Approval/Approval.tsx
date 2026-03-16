@@ -22,9 +22,9 @@ const Approval: React.FC<{
 
   const onTimeVal = toPercent(vendor.ontimeDelivery || 0);
   const qualityVal = toPercent(vendor.qualityScore || 0);
-  const priceVal = toPercent(
-    vendor.viewScoreBreakdown?.priceCompetitiveness || 0,
-  );
+  // const priceVal = toPercent(
+  //   vendor.viewScoreBreakdown?.priceCompetitiveness || 0,
+  // );
 
   return (
     <div className={styles.container}>
@@ -69,9 +69,9 @@ const Approval: React.FC<{
               <p className={styles.vendorNameStyle}>{vendor.name || ""}</p>
               <div className={styles.unitDaysMainCon}>
                 <div className={styles.unitMainCon}>
-                  <i className={`${styles.iconStyle} pi pi-indian-rupee`} />
+                  {/* <i className={`${styles.iconStyle} pi pi-indian-rupee`} /> */}
                   <p className={styles.unitStyle}>
-                    ₹{vendor.unit || ""} / unit
+                    ${vendor.unit || ""} / unit
                   </p>
                 </div>
                 <span style={{ color: "#c8d0d8" }}>•</span>
@@ -126,7 +126,7 @@ const Approval: React.FC<{
               </div>
               <p className={styles.progressValue}>{qualityVal}/100</p>
             </div>
-            <div className={styles.progressRow}>
+            {/* <div className={styles.progressRow}>
               <p className={styles.progressLabel}>Price Competitiveness</p>
               <div className={styles.progressTrack}>
                 <div
@@ -135,7 +135,7 @@ const Approval: React.FC<{
                 />
               </div>
               <p className={styles.progressValue}>{priceVal}/100</p>
-            </div>
+            </div> */}
           </div>
 
           {/* View score breakdown */}
@@ -181,7 +181,7 @@ const Approval: React.FC<{
             </div>
             <div className={styles.summaryRow}>
               <p className={styles.summaryLabel}>Unit Price</p>
-              <p className={styles.summaryValue}>₹{summary.unitPrice || ""}</p>
+              <p className={styles.summaryValue}>${summary.unitPrice || ""}</p>
             </div>
             <div className={styles.summaryRow}>
               <p className={styles.summaryLabel}>Required Date</p>

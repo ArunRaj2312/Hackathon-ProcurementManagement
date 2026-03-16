@@ -353,7 +353,7 @@ const ProcurementSystem = (props: any) => {
       const totalAmountNum = amountNum + cgstNum + sgstNum;
 
       const formatCurrency = (val: number) =>
-        `₹ ${val.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+        `$ ${val.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
       let documents = await getDocuments({
         Listname: "ProcurementDetails",
@@ -365,10 +365,12 @@ const ProcurementSystem = (props: any) => {
         ActiveTab: res.ActiveTab || 1,
         AiOverview: res.AIOverview || "",
         VendorAiOverview: res.VendorAIOverview || "",
+        status: res.Status || "",
         basicInformation: {
           id: res.Id,
           prId: res.Item?.PRId || "",
           item: res.Item?.Title || "",
+          itemId: res.ItemId || null,
           quantity: res.Quantity || "",
           estimatedUnitPrice: res.Price || "",
           totalEstimated: res.Total || "",
@@ -597,7 +599,9 @@ const ProcurementSystem = (props: any) => {
             </p>
           </div>
           <div className={procurementSysStyles.pageBadges}>
-            <span className={procurementSysStyles.badgeDraft}>DRAFT</span>
+            <span className={procurementSysStyles.badgeDraft}>
+              {formData.status}
+            </span>
             <span className={procurementSysStyles.badgePrId}>
               {formData.basicInformation.prId || "PR — 001"}
             </span>
@@ -659,7 +663,7 @@ const ProcurementSystem = (props: any) => {
                 setselectedStepperVersionId(1);
               }}
             />
-            {formData.ActiveTab === 1 && selectedStepperVersionId === 1 && (
+            {/* {formData.ActiveTab === 1 && selectedStepperVersionId === 1 && (
               <Button
                 label="Save Draft"
                 icon="pi pi-save"
@@ -674,11 +678,10 @@ const ProcurementSystem = (props: any) => {
                   fontWeight: 600,
                 }}
                 onClick={() => {
-                  /* Optional Save Draft Logic */
                   navigate("/");
                 }}
               />
-            )}
+            )} */}
             {formData.ActiveTab === 1 && selectedStepperVersionId === 1 ? (
               <Button
                 label="Proceed to RFQ →"
@@ -833,7 +836,7 @@ const ProcurementSystem = (props: any) => {
         >
           <Button
             label="Close"
-            className="p-button-secondary"
+            className={procurementSysStyles.btnCancel}
             style={{
               borderRadius: 10,
               padding: "8px 16px",
@@ -849,6 +852,9 @@ const ProcurementSystem = (props: any) => {
               borderRadius: 10,
               padding: "8px 16px",
               fontSize: 13,
+              background: "#e67e22",
+              border: "none",
+              boxShadow: "0 2px 8px rgba(230,126,34,0.25)",
             }}
             onClick={async () => {
               if (vendorsList.filter((v) => v.isSelected).length > 0) {
