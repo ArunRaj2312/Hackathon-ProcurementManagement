@@ -14,6 +14,7 @@ import { Calendar } from "primereact/calendar";
 import MainLoader from "../../Loader/MainLoader";
 import * as moment from "moment";
 import { useNavigate } from "react-router-dom";
+import { getVendorComparisonAI } from "../../../../../services/aiService";
 
 const Dashboard = (props: any) => {
   const navigate = useNavigate();
@@ -119,6 +120,53 @@ const Dashboard = (props: any) => {
       console.error("Error fetching approver config data", err);
     }
   };
+  const UpdateAiResponse = async (Id: number): Promise<string> => {
+    try {
+      let AiResponse = ""; // Get this from AI response
+
+      const selectedVendorData = await SPServices.SPReadItems({
+        Listname: "SelectedVendorDetails",
+        FilterCondition: "and",
+        Filter: [
+          {
+            FilterKey: "ProductId",
+            Operator: "eq",
+            FilterValue: Id,
+          },
+          {
+            FilterKey: "Selected",
+            Operator: "ne",
+            FilterValue: true,
+          },
+        ],
+        Select: "*,Vendor/Id,Vendor/Title",
+        Expand: "Vendor",
+      });
+
+      if (selectedVendorData.length) {
+        const selectedVendor = await selectedVendorData?.map((item) => ({
+          Id: item.Id,
+          PRIdId: item.PRIdId,
+          Price: item.Price,
+          QualityScore: item.QualityScore,
+          OnTimeDelivery: item.OnTimeDelivery,
+          VendorId: item.VendorIdId,
+          VendorTitle: item.Vendor?.Title,
+        }));
+
+        if (selectedVendor.length) {
+          const response = await getVendorComparisonAI(selectedVendor);
+
+          AiResponse = response;
+        }
+      }
+
+      return AiResponse;
+    } catch (error) {
+      console.error("Error in UpdateAiResponse:", error);
+      return "AI response unavailable.";
+    }
+  };
 
   const onSubmit = async () => {
     let errorMsg = "";
@@ -150,6 +198,7 @@ const Dashboard = (props: any) => {
     }
 
     try {
+      const updateResponse = await UpdateAiResponse(Number(selectedRow.item));
       const payload: any = {
         ItemId: selectedRow.item,
         Quantity: selectedRow.quantity?.toString(),
@@ -158,9 +207,8 @@ const Dashboard = (props: any) => {
         Date: selectedRow.date,
         Justification: selectedRow.justification,
         ActiveTab: "1",
-        Status: "In progress",
-        AIOverview:
-          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+        Status: "Pending",
+        AIOverview: updateResponse || "",
       };
       if (selectedRow?.id) {
         await SPServices.SPUpdateItem({
@@ -191,7 +239,7 @@ const Dashboard = (props: any) => {
     0,
   );
   const totalEstimated = data.reduce(
-    (acc, row) => acc + (Number(String(row.total).replace(/[₹,]/g, "")) || 0),
+    (acc, row) => acc + (Number(String(row.total).replace(/[$,]/g, "")) || 0),
     0,
   );
   const upcomingDue = data.filter((row) => {
@@ -212,7 +260,7 @@ const Dashboard = (props: any) => {
   const draftCount = data.filter(
     (r) =>
       (r.status || "").toLowerCase() === "draft" ||
-      (r.status || "").toLowerCase() === "in progress",
+      (r.status || "").toLowerCase() === "pending",
   ).length;
 
   // ====== Spend by category (derived from items) ======
@@ -221,7 +269,7 @@ const Dashboard = (props: any) => {
     const cat = row.item || "Other";
     categorySpend[cat] =
       (categorySpend[cat] || 0) +
-      (Number(String(row.total).replace(/[₹,]/g, "")) || 0);
+      (Number(String(row.total).replace(/[$,]/g, "")) || 0);
   });
   const categoryList = Object.entries(categorySpend)
     .sort((a, b) => b[1] - a[1])
@@ -250,7 +298,7 @@ const Dashboard = (props: any) => {
         style={{
           background:
             (rowData.status || "").toLowerCase() === "approved"
-              ? "#e67e22"
+              ? "#28a745"
               : (rowData.status || "").toLowerCase() === "pending"
                 ? "#e67e22"
                 : "#3182ce",
@@ -285,12 +333,12 @@ const Dashboard = (props: any) => {
   );
 
   const priceTemplate = (rowData: any) => (
-    <span>₹{Number(rowData.price).toLocaleString("en-IN") || "—"}</span>
+    <span>${Number(rowData.price).toLocaleString("en-US") || "—"}</span>
   );
 
   const totalTemplate = (rowData: any) => (
     <span className={styles.totalCell}>
-      ₹{Number(rowData.total).toLocaleString("en-IN") || "—"}
+      ${Number(rowData.total).toLocaleString("en-US") || "—"}
     </span>
   );
 
@@ -430,12 +478,12 @@ const Dashboard = (props: any) => {
               <div className={styles.statCardContent}>
                 <p className={styles.statCardLabel}>EST. VALUE</p>
                 <p className={styles.statCardValue} style={{ fontSize: 22 }}>
-                  ₹{totalEstimated.toLocaleString("en-IN")}
+                  ${totalEstimated.toLocaleString("en-US")}
                 </p>
                 <p className={styles.statCardSub}>Combined spend</p>
               </div>
               <div className={`${styles.statCardIcon} ${styles.statIconRupee}`}>
-                <i className="pi pi-indian-rupee" />
+                <i className="pi pi-dollar" />
               </div>
             </div>
             {/* Upcoming Due */}
@@ -593,7 +641,7 @@ const Dashboard = (props: any) => {
                       badge: "Active",
                       badgeCls: styles.badgeActive,
                       initial: "D",
-                      color: "#e67e22",
+                      color: "#4c8b4b",
                     },
                     {
                       name: "Lenovo India",
@@ -651,7 +699,7 @@ const Dashboard = (props: any) => {
                             <span className={styles.categoryName}>{cat}</span>
                           </div>
                           <span className={styles.categoryAmount}>
-                            ₹{amt.toLocaleString("en-IN")}
+                            ${amt.toLocaleString("en-US")}
                           </span>
                         </div>
                         <div className={styles.categoryBar}>
@@ -757,11 +805,11 @@ const Dashboard = (props: any) => {
                     <span className={styles.reqStar}>*</span>
                   </label>
                   <div className={styles.inputWithIcon}>
-                    <span className={styles.currencyPrefix}>₹</span>
+                    <span className={styles.currencyPrefix}>$</span>
                     <InputText
                       value={
                         selectedRow.price
-                          ? String(selectedRow.price).replace("₹", "")
+                          ? String(selectedRow.price).replace("$", "")
                           : ""
                       }
                       placeholder="0.00"
@@ -770,7 +818,7 @@ const Dashboard = (props: any) => {
                         onChangeHandler("price", e.target.value)
                       }
                     />
-                    <i className={`pi pi-indian-rupee ${styles.rightIcon}`} />
+                    <i className={`pi pi-dollar ${styles.rightIcon}`} />
                   </div>
                 </div>
 
@@ -784,19 +832,21 @@ const Dashboard = (props: any) => {
                     </span>
                   </label>
                   <div className={styles.inputWithIcon}>
-                    <span className={styles.currencyPrefix}>₹</span>
+                    <span className={styles.currencyPrefix}>$</span>
                     <InputText
                       value={
                         selectedRow.total
-                          ? String(selectedRow.total).replace("₹", "")
+                          ? String(selectedRow.total).replace("$", "")
                           : ""
                       }
-                      placeholder="0.00"
-                      disabled
+                      placeholder="0"
                       className={`${styles.customInput} ${styles.hasPrefix} ${styles.lockedInput}`}
-                      onChange={(e: any) =>
-                        onChangeHandler("total", e.target.value)
-                      }
+                      onChange={(e: any) => {
+                        const val = e.target.value;
+                        if (val === "" || /^[0-9]+$/.test(val)) {
+                          onChangeHandler("total", val);
+                        }
+                      }}
                     />
                     <i
                       className={`pi pi-lock ${styles.rightIcon} ${styles.rightIconLocked}`}

@@ -22,6 +22,7 @@ export interface BasicInformation {
   id: string | number;
   prId: string;
   item: string;
+  itemId: string | null;
   quantity: string;
   estimatedUnitPrice: string;
   totalEstimated: string;
@@ -95,6 +96,7 @@ export interface ProcurementFormData {
   ActiveTab: number;
   AiOverview: string;
   VendorAiOverview: string;
+  status: string;
   basicInformation: BasicInformation;
   vendorComparison: VendorComparison;
   approval: Approval;

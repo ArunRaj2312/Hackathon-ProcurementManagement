@@ -93,9 +93,9 @@ const VendorComparison = (props: {
             const isTopPick = item.aiRecommeded;
             const onTimeVal = toPercent(item.ontimeDelivery);
             const qualityVal = toPercent(item.qualityScore);
-            const priceVal = toPercent(
-              item.viewScoreBreakdown?.priceCompetitiveness,
-            );
+            // const priceVal = toPercent(
+            //   item.viewScoreBreakdown?.priceCompetitiveness,
+            // );
             const isOrangeOnTime = onTimeVal < 100;
 
             return (
@@ -137,7 +137,7 @@ const VendorComparison = (props: {
                           className={`${vendorStyles.iconStyle} pi pi-dollar`}
                         />
                         <p className={vendorStyles.unitStyle}>
-                          {item?.unit ? `$${item.unit}` : "—"} / unit
+                          {item?.unit ? `${item.unit}` : "—"} / unit
                         </p>
                       </div>
                       <div className={vendorStyles.daysMainCon}>
@@ -214,7 +214,7 @@ const VendorComparison = (props: {
                   </div>
 
                   {/* Price Competitiveness */}
-                  <div className={vendorStyles.progressRow}>
+                  {/* <div className={vendorStyles.progressRow}>
                     <p className={vendorStyles.progressLabel}>
                       Price Competitiveness
                     </p>
@@ -225,7 +225,7 @@ const VendorComparison = (props: {
                       />
                     </div>
                     <p className={vendorStyles.progressValue}>{priceVal}/100</p>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* View Score Breakdown toggle

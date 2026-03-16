@@ -83,7 +83,7 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
                 <p
                   className={`${styles.itemValueCon} ${styles.itemValueGreen}`}
                 >
-                  {data.amount || "₹1,29,800"}
+                  {data.amount || "$1,29,800"}
                 </p>
               </div>
               <div className={styles.itemCon}>
@@ -92,12 +92,12 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
                   {data.dueDate || "05 Apr 2026"}
                 </p>
               </div>
-              <div className={styles.itemCon}>
+              {/* <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>Payment Terms</p>
                 <p className={styles.itemValueCon}>
                   {data.paymentTerms || "Net 30 Days"}
                 </p>
-              </div>
+              </div> */}
               <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>PO Reference</p>
                 <p className={`${styles.itemValueCon} ${styles.itemValueBlue}`}>

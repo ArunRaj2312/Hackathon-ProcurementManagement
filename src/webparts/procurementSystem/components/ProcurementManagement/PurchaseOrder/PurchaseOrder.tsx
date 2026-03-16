@@ -93,14 +93,14 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                     <strong>{data.deliveryDate || "N/A"}</strong>
                   </p>
                 </div>
-                <div className={styles.itemCon}>
+                {/* <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>Payment Terms</p>
                   <p
                     className={`${styles.itemValueCon} ${styles.itemValueGreen}`}
                   >
                     {data.paymentTerms || "N/A"}
                   </p>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -122,8 +122,8 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 <tr>
                   <th>Item Description</th>
                   <th>Quantity</th>
-                  <th>Unit Price (₹)</th>
-                  <th>Amount (₹)</th>
+                  <th>Unit Price ($)</th>
+                  <th>Amount ($)</th>
                 </tr>
               </thead>
               <tbody>
