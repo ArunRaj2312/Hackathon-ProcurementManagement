@@ -37,8 +37,6 @@ const VendorComparison = (props: {
   //   }
   // }, [props.data?.vendors]);
 
-  console.log("props.data", props.data);
-
   const vendors: any[] = props.data?.vendors || [];
 
   // Helper: returns width% for progress bar, capped at 100

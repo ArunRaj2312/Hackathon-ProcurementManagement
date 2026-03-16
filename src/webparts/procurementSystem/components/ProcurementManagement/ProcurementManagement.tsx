@@ -125,7 +125,8 @@ const ProcurementSystem = (props: any) => {
             RequestJSON: {
               PRIdId: formData.basicInformation.id,
               VendorId: sel.id,
-              AIRecommended: false, //AI response
+              // AIRecommended: false, //AI response
+              ProductIdId: formData.basicInformation.itemId,
             },
           });
           if (i === selected.length - 1) {
@@ -134,8 +135,8 @@ const ProcurementSystem = (props: any) => {
               ID: formData.basicInformation.id,
               RequestJSON: {
                 ActiveTab: 2,
-                VendorAIOverview:
-                  "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s", // AI response
+                // VendorAIOverview:
+                //   "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s", // AI response
               },
             });
             setIsLoader(false);
@@ -279,7 +280,6 @@ const ProcurementSystem = (props: any) => {
       console.error("Error fetching vendors:", err);
     }
   };
-  console.log("formda", formData);
 
   const getDocuments = async (params: { Listname: string; ID: number }) => {
     const item: any = await sp.web.lists
@@ -359,7 +359,6 @@ const ProcurementSystem = (props: any) => {
         Listname: "ProcurementDetails",
         ID: res.Id,
       });
-      console.log("documents", documents);
 
       setFormData({
         ActiveTab: res.ActiveTab || 1,
@@ -419,7 +418,7 @@ const ProcurementSystem = (props: any) => {
             documents.length > 0
               ? documents.find((_v) => _v.name === "PO.docx")?.content || ""
               : "",
-          poNumber: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(res.Id)).slice(-3) : "001"}`,
+          poNumber: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(approvedSelectedVendor.id)).slice(-3) : "001"}`,
           prId: res.Item?.PRId || "N/A",
           issueDate: new Date().toLocaleDateString("en-GB"),
           vendor: {
@@ -487,7 +486,6 @@ const ProcurementSystem = (props: any) => {
         setUserRole(res[0].Role);
       }
       await getProcurementData();
-      console.log("Approver config data", res);
     } catch (err) {
       console.error("Error fetching approver config data", err);
     }

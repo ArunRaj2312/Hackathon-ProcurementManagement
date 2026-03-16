@@ -14,7 +14,7 @@ import { Calendar } from "primereact/calendar";
 import MainLoader from "../../Loader/MainLoader";
 import * as moment from "moment";
 import { useNavigate } from "react-router-dom";
-import { getVendorComparisonAI } from "../../../../../services/aiService";
+import { getBasicInfoAI } from "../../../../../services/aiService";
 
 const Dashboard = (props: any) => {
   const navigate = useNavigate();
@@ -155,7 +155,7 @@ const Dashboard = (props: any) => {
         }));
 
         if (selectedVendor.length) {
-          const response = await getVendorComparisonAI(selectedVendor);
+          const response = await getBasicInfoAI(selectedVendor);
 
           AiResponse = response;
         }
@@ -257,11 +257,11 @@ const Dashboard = (props: any) => {
   const pendingCount = data.filter(
     (r) => (r.status || "").toLowerCase() === "pending",
   ).length;
-  const draftCount = data.filter(
-    (r) =>
-      (r.status || "").toLowerCase() === "draft" ||
-      (r.status || "").toLowerCase() === "pending",
-  ).length;
+  // const draftCount = data.filter(
+  //   (r) =>
+  //     (r.status || "").toLowerCase() === "draft" ||
+  //     (r.status || "").toLowerCase() === "pending",
+  // ).length;
 
   // ====== Spend by category (derived from items) ======
   const categorySpend: Record<string, number> = {};
@@ -312,7 +312,7 @@ const Dashboard = (props: any) => {
           })
         }
       >
-        {"PR-" + String(rowData.id || "").padStart(4, "0")}
+        {"REQ-" + String(rowData.id || "").padStart(4, "0")}
       </span>
     </div>
   );
@@ -396,6 +396,7 @@ const Dashboard = (props: any) => {
 
   useEffect(() => {
     setIsLoader(true);
+    void UpdateAiResponse(1);
     void getApproverConfig();
   }, []);
 
@@ -603,12 +604,12 @@ const Dashboard = (props: any) => {
                       color: "#e67e22",
                       bg: "#fff3e0",
                     },
-                    {
-                      label: "Draft",
-                      count: draftCount,
-                      color: "#6a737d",
-                      bg: "#f0f2f4",
-                    },
+                    // {
+                    //   label: "Draft",
+                    //   count: draftCount,
+                    //   color: "#6a737d",
+                    //   bg: "#f0f2f4",
+                    // },
                   ].map((s) => (
                     <div key={s.label} className={styles.statusOverviewRow}>
                       <div className={styles.statusOverviewLeft}>

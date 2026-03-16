@@ -104,14 +104,14 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
                   {data.poReference || "PO-2026-001"}
                 </p>
               </div>
-              <div className={styles.itemCon}>
+              {/* <div className={styles.itemCon}>
                 <p className={styles.itemLabelCon}>GRN Reference</p>
                 <p
                   className={`${styles.itemValueCon} ${styles.itemValueOrange}`}
                 >
                   {data.grnReference || "GRN-2026-089"}
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
 
