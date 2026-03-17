@@ -76,7 +76,8 @@
 /* ===== Filled Vendor Card ===== */
 .cardMainCon {
   background: #ffffff;
-  border: 1px solid #eaecef;
+  border: none;
+  // border: 2px solid #eaecef;
   border-radius: 14px;
   padding: 18px;
   display: flex;

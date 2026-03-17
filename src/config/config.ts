@@ -76,6 +76,7 @@ export const newData: ProcurementFormData = {
   invoice: {
     docUrl: "",
     invoiceNumber: "",
+    poReference: "",
     invoiceDate: "",
     vendor: "",
     vendorCode: "",

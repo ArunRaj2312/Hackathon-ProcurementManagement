@@ -38,7 +38,6 @@ const VendorComparison = (props: {
   // }, [props.data?.vendors]);
 
   const vendors: any[] = props.data?.vendors || [];
-
   // Helper: returns width% for progress bar, capped at 100
   const toPercent = (val: any): number => {
     const n = parseFloat(val);
@@ -99,7 +98,8 @@ const VendorComparison = (props: {
             return (
               <div
                 key={item?.id}
-                className={`${vendorStyles.cardMainCon} ${isSelected ? vendorStyles.activeCard : ""}`}
+                className={`${vendorStyles.cardMainCon}`}
+                // className={`${vendorStyles.cardMainCon} ${isSelected ? vendorStyles.activeCard : ""}`}
                 onClick={() => {
                   if (props.activeTab === 2) {
                     let updated = [...vendors];
@@ -120,12 +120,24 @@ const VendorComparison = (props: {
                   <div className={vendorStyles.vendorNameCon}>
                     <div className={vendorStyles.vendorNameTopRow}>
                       <p className={vendorStyles.vendorNameStyle}>
-                        {item.name}
+                        {item.vendorName}
                       </p>
                       {isTopPick && (
-                        <span className={vendorStyles.topPickBadge}>
+                        <span
+                          className={vendorStyles.topPickBadge}
+                          style={{ backgroundColor: "#7546e1" }}
+                        >
                           <i className="pi pi-star-fill" />
-                          TOP PICK
+                          AI RECOMMENDED
+                        </span>
+                      )}
+                      {isSelected && (
+                        <span
+                          className={vendorStyles.topPickBadge}
+                          style={{ backgroundColor: "#189d46" }}
+                        >
+                          <i className="pi pi-star-fill" />
+                          SELECTED
                         </span>
                       )}
                     </div>

@@ -159,3 +159,7 @@ li {
 textarea {
   resize: none !important;
 }
+.p-checkbox.p-highlight .p-checkbox-box {
+  background-color: #e67e22 !important;
+  border-color: #e67e22 !important;
+}

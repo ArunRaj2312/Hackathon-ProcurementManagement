@@ -33,13 +33,13 @@ const Approval: React.FC<{
         <div className={styles.statusLeft}>
           <div className={styles.statusIconWrap}>⏳</div>
           <div>
-            <p className={styles.statusTitle}>Awaiting Manager Approval</p>
+            <p className={styles.statusTitle}>Manager Approval</p>
             <p className={styles.statusSub}>
               {`Submitted on ${summary.submissionDate ? moment(summary.submissionDate).format("DD MMM YYYY") : ""} · Estimated response within 48 hrs`}
             </p>
           </div>
         </div>
-        <span className={styles.pendingBadge}>PENDING</span>
+        {/* <span className={styles.pendingBadge}>PENDING</span> */}
       </div>
 
       {/* ===== TWO-COLUMN LAYOUT ===== */}
@@ -66,7 +66,9 @@ const Approval: React.FC<{
           {/* Name + Final Score */}
           <div className={styles.vendorNameMainCon}>
             <div className={styles.vendorNameCon}>
-              <p className={styles.vendorNameStyle}>{vendor.name || ""}</p>
+              <p className={styles.vendorNameStyle}>
+                {vendor.vendorName || ""}
+              </p>
               <div className={styles.unitDaysMainCon}>
                 <div className={styles.unitMainCon}>
                   {/* <i className={`${styles.iconStyle} pi pi-indian-rupee`} /> */}
@@ -208,7 +210,7 @@ const Approval: React.FC<{
             className="pi pi-comment"
             style={{ color: "#a0aab4", fontSize: 16 }}
           />
-          <p className={styles.commentCardTitle}>Add Comment</p>
+          <p className={styles.commentCardTitle}>Comments</p>
         </div>
         <div className={styles.commentBody}>
           <textarea

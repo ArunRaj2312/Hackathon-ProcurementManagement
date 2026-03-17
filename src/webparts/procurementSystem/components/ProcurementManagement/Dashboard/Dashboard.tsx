@@ -120,7 +120,7 @@ const Dashboard = (props: any) => {
       console.error("Error fetching approver config data", err);
     }
   };
-  const UpdateAiResponse = async (Id: number): Promise<string> => {
+  const UpdateAiResponse = async (selectedData: any): Promise<string> => {
     try {
       let AiResponse = ""; // Get this from AI response
 
@@ -131,7 +131,7 @@ const Dashboard = (props: any) => {
           {
             FilterKey: "ProductId",
             Operator: "eq",
-            FilterValue: Id,
+            FilterValue: selectedData?.item,
           },
           {
             FilterKey: "Selected",
@@ -145,17 +145,18 @@ const Dashboard = (props: any) => {
 
       if (selectedVendorData.length) {
         const selectedVendor = await selectedVendorData?.map((item) => ({
-          Id: item.Id,
-          PRIdId: item.PRIdId,
           Price: item.Price,
-          QualityScore: item.QualityScore,
-          OnTimeDelivery: item.OnTimeDelivery,
-          VendorId: item.VendorIdId,
-          VendorTitle: item.Vendor?.Title,
         }));
 
         if (selectedVendor.length) {
-          const response = await getBasicInfoAI(selectedVendor);
+          const response = await getBasicInfoAI([
+            ...selectedVendor,
+            selectedData?.map((e: any) => {
+              return {
+                Price: e.price,
+              };
+            }),
+          ]);
 
           AiResponse = response;
         }
@@ -198,7 +199,7 @@ const Dashboard = (props: any) => {
     }
 
     try {
-      const updateResponse = await UpdateAiResponse(Number(selectedRow.item));
+      const updateResponse = await UpdateAiResponse(selectedRow);
       const payload: any = {
         ItemId: selectedRow.item,
         Quantity: selectedRow.quantity?.toString(),
@@ -257,11 +258,15 @@ const Dashboard = (props: any) => {
   const pendingCount = data.filter(
     (r) => (r.status || "").toLowerCase() === "pending",
   ).length;
-  // const draftCount = data.filter(
-  //   (r) =>
-  //     (r.status || "").toLowerCase() === "draft" ||
-  //     (r.status || "").toLowerCase() === "pending",
-  // ).length;
+  const rejectedCount = data.filter(
+    (r) => (r.status || "").toLowerCase() === "rejected",
+  ).length;
+  const poSentCount = data.filter(
+    (r) => (r.status || "").toLowerCase() === "po sent",
+  ).length;
+  const invoiceReceivedCount = data.filter(
+    (r) => (r.status || "").toLowerCase() === "invoice received",
+  ).length;
 
   // ====== Spend by category (derived from items) ======
   const categorySpend: Record<string, number> = {};
@@ -312,7 +317,7 @@ const Dashboard = (props: any) => {
           })
         }
       >
-        {"REQ-" + String(rowData.id || "").padStart(4, "0")}
+        {`REQ-${new Date().getFullYear()}-${String(rowData.id || "").padStart(4, "0")}`}
       </span>
     </div>
   );
@@ -351,7 +356,15 @@ const Dashboard = (props: any) => {
           ? styles.statusPending
           : s === "draft"
             ? styles.statusDraft
-            : styles.statusDefault;
+            : s === "rejected"
+              ? styles.statusRejected
+              : s === "po sent"
+                ? styles.statusPO
+                : s === "invoice received"
+                  ? styles.statusInvoice
+                  : s === "awaiting approval"
+                    ? styles.statusAwaitingApproval
+                    : styles.statusDefault;
     return (
       <span className={`${styles.statusBadge} ${cls}`}>
         <span className={styles.statusDotInner} />
@@ -396,7 +409,6 @@ const Dashboard = (props: any) => {
 
   useEffect(() => {
     setIsLoader(true);
-    void UpdateAiResponse(1);
     void getApproverConfig();
   }, []);
 
@@ -515,7 +527,14 @@ const Dashboard = (props: any) => {
                     </span>
                   </div>
                   <div className={styles.filterTabs}>
-                    {["All", "Approved", "Pending", "Draft"].map((tab) => (
+                    {[
+                      "All",
+                      "Approved",
+                      "Pending",
+                      "Rejected",
+                      "PO Sent",
+                      "Invoice Received",
+                    ].map((tab) => (
                       <button
                         key={tab}
                         className={`${styles.filterTab} ${activeTab === tab ? styles.filterTabActive : ""}`}
@@ -532,7 +551,7 @@ const Dashboard = (props: any) => {
                   value={filteredData}
                   responsiveLayout="scroll"
                   className="p-datatable-sm"
-                  paginator={true}
+                  paginator={filteredData.length > 0}
                   rows={10}
                   paginatorTemplate="PrevPageLink PageLinks NextPageLink"
                   paginatorClassName="custom-paginator"
@@ -595,7 +614,7 @@ const Dashboard = (props: any) => {
                     {
                       label: "Approved",
                       count: approvedCount,
-                      color: "#e67e22",
+                      color: "#28a745",
                       bg: "#e8f5ec",
                     },
                     {
@@ -604,12 +623,24 @@ const Dashboard = (props: any) => {
                       color: "#e67e22",
                       bg: "#fff3e0",
                     },
-                    // {
-                    //   label: "Draft",
-                    //   count: draftCount,
-                    //   color: "#6a737d",
-                    //   bg: "#f0f2f4",
-                    // },
+                    {
+                      label: "Rejected",
+                      count: rejectedCount,
+                      color: "#d93025",
+                      bg: "#fdecea",
+                    },
+                    {
+                      label: "PO Sent",
+                      count: poSentCount,
+                      color: "#1a73e8",
+                      bg: "#e8f0fe",
+                    },
+                    {
+                      label: "Invoice Received",
+                      count: invoiceReceivedCount,
+                      color: "#ef6c00",
+                      bg: "#fff3e0",
+                    },
                   ].map((s) => (
                     <div key={s.label} className={styles.statusOverviewRow}>
                       <div className={styles.statusOverviewLeft}>

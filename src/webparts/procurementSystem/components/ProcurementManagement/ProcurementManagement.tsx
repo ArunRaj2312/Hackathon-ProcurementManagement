@@ -77,7 +77,7 @@ const ProcurementSystem = (props: any) => {
       await SPServices.SPUpdateItem({
         Listname: "ProcurementDetails",
         ID: formData.basicInformation.id,
-        RequestJSON: { ActiveTab: 5, SendPo: true },
+        RequestJSON: { ActiveTab: 5, SendPo: true, Status: "PO Sent" },
       });
       setIsLoader(false);
       navigate("/");
@@ -172,6 +172,7 @@ const ProcurementSystem = (props: any) => {
           Listname: "ProcurementDetails",
           ID: formData.basicInformation.id,
           RequestJSON: {
+            Status: "Awaiting Approval",
             ActiveTab: 3,
           },
         });
@@ -219,6 +220,8 @@ const ProcurementSystem = (props: any) => {
     try {
       const res = await SPServices.SPReadItems({
         Listname: "SelectedVendorDetails",
+        Select: "*,Vendor/Title",
+        Expand: "Vendor",
         Filter: [
           {
             FilterKey: "PRId",
@@ -227,9 +230,9 @@ const ProcurementSystem = (props: any) => {
           },
         ],
       });
-
       const tempVendor: any[] = res.map((item: any) => ({
         id: item.Id || "",
+        vendorName: item.Vendor?.Title || "",
         vendorId: item.VendorId || "",
         unit: item.Price || "",
         days: item.Days || "",
@@ -345,12 +348,12 @@ const ProcurementSystem = (props: any) => {
         ); // Often SelectedVendorDetails.VendorId points to VendorDetails
         selectedVendorInfo = matchingVendorDetail || {};
       }
-
       // Calculations for PO
       const amountNum = parseFloat(res.Total) || 0;
-      const cgstNum = amountNum * 0.09;
-      const sgstNum = amountNum * 0.09;
-      const totalAmountNum = amountNum + cgstNum + sgstNum;
+      // const cgstNum = amountNum * 0;
+      // const sgstNum = amountNum * 0;
+      const totalAmountNum = amountNum;
+      // const totalAmountNum = amountNum + cgstNum + sgstNum;
 
       const formatCurrency = (val: number) =>
         `$ ${val.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
@@ -387,6 +390,7 @@ const ProcurementSystem = (props: any) => {
         approval: {
           selectedVendor: approvedSelectedVendor || {
             id: "",
+            vendorName: "",
             unit: "",
             days: "",
             finalScore: "",
@@ -418,7 +422,7 @@ const ProcurementSystem = (props: any) => {
             documents.length > 0
               ? documents.find((_v) => _v.name === "PO.docx")?.content || ""
               : "",
-          poNumber: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(approvedSelectedVendor.id)).slice(-3) : "001"}`,
+          poNumber: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(approvedSelectedVendor?.id || "001")).slice(-3) : "001"}`,
           prId: res.Item?.PRId || "N/A",
           issueDate: new Date().toLocaleDateString("en-GB"),
           vendor: {
@@ -426,6 +430,7 @@ const ProcurementSystem = (props: any) => {
             code: selectedVendorInfo?.VendorCode || "",
             gstNumber: selectedVendorInfo?.GSTNumber || "",
             address: selectedVendorInfo?.Address || "",
+            companyName: selectedVendorInfo?.CompanyName || "",
             contactPerson: selectedVendorInfo?.ContactPerson || "",
           },
           deliveryDate: res.Date
@@ -441,8 +446,10 @@ const ProcurementSystem = (props: any) => {
             },
           ],
           subTotal: formatCurrency(amountNum),
-          cgst: formatCurrency(cgstNum),
-          sgst: formatCurrency(sgstNum),
+          cgst: formatCurrency(0),
+          sgst: formatCurrency(0),
+          // cgst: formatCurrency(cgstNum),
+          // sgst: formatCurrency(sgstNum),
           totalAmount: formatCurrency(totalAmountNum),
         },
         invoice: {
@@ -451,6 +458,7 @@ const ProcurementSystem = (props: any) => {
               ? documents.find((_v) => _v.name === "Invoice.docx")?.content ||
                 ""
               : "",
+          poReference: `PO-${new Date().getFullYear()}-${res.Id ? ("000" + String(approvedSelectedVendor?.id || "001")).slice(-3) : "001"}`,
           invoiceNumber: `INV-V-${new Date().getFullYear()}-${res.Id}`,
           invoiceDate: new Date().toLocaleDateString("en-GB"),
           vendor: selectedVendorInfo?.Title || "",
@@ -590,7 +598,7 @@ const ProcurementSystem = (props: any) => {
                 : selectedStepperVersionId === 2
                   ? "Evaluate and select a vendor for this purchase request"
                   : selectedStepperVersionId === 3
-                    ? "Awaiting manager approval for the selected vendor"
+                    ? "manager approval for the selected vendor"
                     : selectedStepperVersionId === 4
                       ? "Generate and review the purchase order"
                       : "Review and close the invoice for this order"}
@@ -601,7 +609,7 @@ const ProcurementSystem = (props: any) => {
               {formData.status}
             </span>
             <span className={procurementSysStyles.badgePrId}>
-              {formData.basicInformation.prId || "PR — 001"}
+              {`REQ-${new Date().getFullYear()}-${String(formData.basicInformation.id || "1").padStart(4, "0")}`}
             </span>
           </div>
         </div>
