@@ -403,9 +403,25 @@
   background: #fff3e0;
   color: #e67e22;
 }
+.statusAwaitingApproval {
+  background: #fff8e1;
+  color: #f9a825;
+}
 .statusDraft {
   background: #f0f4f8;
   color: #6a737d;
+}
+.statusRejected {
+  background: #fdecea;
+  color: #d93025;
+}
+.statusPO {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+.statusInvoice {
+  background: #fff3e0;
+  color: #ef6c00;
 }
 .statusDefault {
   background: #f0f4f8;

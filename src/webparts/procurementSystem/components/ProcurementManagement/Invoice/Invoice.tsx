@@ -11,7 +11,7 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
         <div className={styles.bannerLeft}>
           <div className={styles.bannerIconWrap}>🎉</div>
           <div>
-            <p className={styles.bannerTitle}>Invoice Validation Complete</p>
+            <p className={styles.bannerTitle}>Invoice Received</p>
             <p className={styles.bannerSub}>
               All steps verified · Ready for payment processing and order
               closure
@@ -31,7 +31,7 @@ const Invoice: React.FC<{ data?: any }> = (props) => {
               <div className={styles.invoiceCardIconWrap}>
                 <i className="pi pi-file-check" />
               </div>
-              <p className={styles.invoiceCardTitle}>Invoice Validation</p>
+              <p className={styles.invoiceCardTitle}>Invoice</p>
             </div>
             <span className={styles.invoiceCardSubInfo}>
               Generated from {data.poReference || "PO-2026-001"}

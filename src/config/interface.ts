@@ -70,6 +70,7 @@ export interface PurchaseOrder {
     code: string;
     gstNumber?: string;
     address?: string;
+    companyName?: string;
     contactPerson?: string;
   };
   deliveryDate: string;
@@ -84,6 +85,7 @@ export interface PurchaseOrder {
 export interface Invoice {
   docUrl: string;
   invoiceNumber: string;
+  poReference: string;
   invoiceDate: string;
   vendor: string;
   vendorCode: string;

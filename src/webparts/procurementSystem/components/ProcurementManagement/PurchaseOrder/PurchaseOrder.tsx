@@ -48,7 +48,7 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 <div className={styles.itemCon}>
                   <p className={styles.itemLabelCon}>Company Name</p>
                   <p className={styles.itemValueCon}>
-                    {data.vendor?.name || "N/A"}
+                    {data.vendor?.companyName || "N/A"}
                   </p>
                 </div>
                 <div className={styles.itemCon}>
@@ -154,11 +154,11 @@ const PurchaseOrder: React.FC<{ data?: any }> = (props) => {
                 <p className={styles.totalsValue}>{data.subTotal || "0"}</p>
               </div>
               <div className={styles.totalsRow}>
-                <p className={styles.totalsLabel}>CGST (9%)</p>
+                <p className={styles.totalsLabel}>CGST (0%)</p>
                 <p className={styles.totalsValue}>{data.cgst || "0"}</p>
               </div>
               <div className={styles.totalsRow}>
-                <p className={styles.totalsLabel}>SGST (9%)</p>
+                <p className={styles.totalsLabel}>SGST (0%)</p>
                 <p className={styles.totalsValue}>{data.sgst || "0"}</p>
               </div>
             </div>
